@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#072E20">
   <title>НУР — Исламская викторина</title>
 
-  <!-- ВНЕШНЯЯ БАЗА ВОПРОСОВ. В index.html МАССИВА questions НЕТ. -->
+  <!-- Внешняя база вопросов -->
   <script src="questions.js"></script>
 
   <style>
@@ -77,10 +77,6 @@
         linear-gradient(145deg, #072E20, #061F17);
     }
 
-    /* =========================================================
-       ЭКРАНЫ
-       ========================================================= */
-
     .screen {
       width: 100%;
       height: 100%;
@@ -88,11 +84,80 @@
       display: none;
       flex-direction: column;
       overflow: hidden;
+      pointer-events: none;
     }
 
     .screen.active {
       display: flex;
+      position: relative;
+      z-index: 1;
       animation: fadeIn 220ms ease;
+      pointer-events: auto;
+    }
+
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(212, 175, 55, 0.16), transparent 35%),
+        linear-gradient(145deg, #072E20, #061F17);
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 260ms ease, visibility 260ms ease;
+    }
+
+    .loading-screen.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loading-card {
+      width: min(100%, 360px);
+      text-align: center;
+    }
+
+    .loading-logo {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 16px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(212, 175, 55, 0.55);
+      border-radius: 20px;
+      color: var(--gold);
+      font-size: 32px;
+      background: rgba(11, 68, 48, 0.7);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    .loading-title {
+      margin: 0;
+      color: var(--gold-light);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 30px;
+    }
+
+    .loading-status {
+      margin: 8px 0 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .loading-slider {
+      width: 100%;
+      height: 8px;
+      display: block;
+      accent-color: var(--gold);
+    }
+
+    .loading-slider:disabled {
+      opacity: 1;
     }
 
     .screen-content {
@@ -105,24 +170,11 @@
       min-height: 0;
     }
 
-    #homeScreen .screen-content {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 100vh;
-      padding: 30px 20px;
-      box-sizing: border-box;
-    }
-
     .screen-center {
       justify-content: center;
       align-items: center;
       text-align: center;
     }
-
-    /* =========================================================
-       ОБЩИЕ ЭЛЕМЕНТЫ
-       ========================================================= */
 
     .eyebrow {
       margin: 0 0 6px;
@@ -148,30 +200,28 @@
       line-height: 1.4;
     }
 
-    .card {
-      width: 100%;
-      padding: 16px;
-      border: 1px solid rgba(212, 175, 55, 0.22);
-      border-radius: var(--radius);
-      background: linear-gradient(145deg, var(--card-2), var(--card));
-      box-shadow: var(--shadow);
-    }
-
     .primary-btn,
     .secondary-btn,
-    .danger-btn {
-      width: 100%;
+    .category-btn,
+    .main-mode-btn,
+    .utility-btn,
+    .step-choice,
+    .answer,
+    .back-text-btn,
+    .exit-game-btn {
       min-height: 48px;
-      padding: 11px 14px;
       border-radius: 14px;
       transition:
         transform var(--transition),
         background var(--transition),
         border-color var(--transition),
+        box-shadow var(--transition),
         opacity var(--transition);
     }
 
     .primary-btn {
+      width: 100%;
+      padding: 11px 14px;
       color: #15200c;
       background: linear-gradient(135deg, var(--gold-light), var(--gold));
       border: 1px solid var(--gold);
@@ -179,24 +229,20 @@
     }
 
     .secondary-btn {
+      width: 100%;
+      padding: 11px 14px;
       color: var(--cream);
       background: transparent;
       border: 1px solid rgba(212, 175, 55, 0.35);
-    }
-
-    .danger-btn {
-      color: #FFD8D3;
-      background: rgba(231, 76, 60, 0.08);
-      border: 1px solid rgba(231, 76, 60, 0.42);
     }
 
     button:not(:disabled):active {
       transform: scale(0.97);
     }
 
-    /* =========================================================
-       ГЛАВНЫЙ ЭКРАН
-       ========================================================= */
+    /* =====================================================
+       HOME
+       ===================================================== */
 
     #homeScreen {
       justify-content: space-between;
@@ -238,9 +284,9 @@
 
     .record {
       width: min(100%, 300px);
-      margin: 8px auto 20px;
-      padding: 7px 12px;
-      border-radius: 12px;
+      margin: 12px auto 0;
+      padding: 9px 14px;
+      border-radius: 13px;
       background: rgba(11, 68, 48, 0.65);
       border: 1px solid rgba(212, 175, 55, 0.18);
     }
@@ -248,40 +294,41 @@
     .record-label {
       display: block;
       color: var(--muted);
-      font-size: 10px;
+      font-size: 11px;
     }
 
     .record-value {
       display: block;
       margin-top: 2px;
       color: var(--gold-light);
-      font-size: 18px;
+      font-size: 21px;
       font-weight: 900;
     }
 
     .home-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
+      display: grid;
+      gap: 10px;
+      width: 100%;
+      margin: 0 auto;
     }
 
     .main-modes {
       display: grid;
-      gap: 18px;
+      gap: 9px;
     }
 
     .main-mode-btn {
       width: 100%;
-      min-height: 54px;
-      padding: 9px 12px;
+      min-height: 58px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
       text-align: left;
       color: var(--cream);
       border: 1px solid rgba(212, 175, 55, 0.23);
-      border-radius: 14px;
+      border-radius: 16px;
       background: linear-gradient(145deg, #10583D, #0B4430);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
     }
@@ -304,27 +351,30 @@
       font-size: 21px;
     }
 
+    .story-level {
+      color: var(--gold);
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
     .utility-row {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
-      margin-top: 12px;
     }
 
     .utility-btn {
-      min-height: 46px;
+      min-height: 48px;
       padding: 7px 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 4px;
-      border-radius: 12px;
+      border-radius: 13px;
       color: var(--cream);
       background: var(--card);
       border: 1px solid rgba(212, 175, 55, 0.24);
-      font-size: 10px;
-      line-height: 1;
-      min-width: 0;
+      font-size: 11px;
     }
 
     .utility-btn.premium {
@@ -332,10 +382,6 @@
       background: linear-gradient(135deg, var(--gold-light), var(--gold));
       border-color: var(--gold);
       font-weight: 850;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
     }
 
     .btn-icon {
@@ -345,18 +391,9 @@
       display: block;
     }
 
-    .secondary-btn,
-    .primary-btn,
-    .utility-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    /* =========================================================
-       ВЕРХНИЕ ПАНЕЛИ ЭКРАНОВ
-       ========================================================= */
+    /* =====================================================
+       STEP SCREENS
+       ===================================================== */
 
     .screen-header {
       flex: 0 0 auto;
@@ -371,27 +408,12 @@
       min-width: 0;
     }
 
-    .back-text-btn {
-      flex: 0 0 auto;
-      min-height: 44px;
-      padding: 8px 11px;
-      color: var(--cream);
-      border-radius: 12px;
-      background: var(--card);
-      border: 1px solid rgba(212, 175, 55, 0.25);
-    }
-
-    /* =========================================================
-       ОДИНОЧНАЯ ИГРА — КАТЕГОРИИ
-       ========================================================= */
-
     .category-list {
       flex: 1;
       min-height: 0;
       display: grid;
       align-content: start;
       gap: 8px;
-      overflow: hidden;
     }
 
     .category-btn {
@@ -405,7 +427,6 @@
       color: var(--cream);
       background: var(--card);
       border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 14px;
     }
 
     .category-btn-main strong {
@@ -430,10 +451,6 @@
       flex: 0 0 auto;
       margin-top: 10px;
     }
-
-    /* =========================================================
-       ПОШАГОВАЯ КОМПАНИЯ
-       ========================================================= */
 
     .step-card {
       flex: 1;
@@ -512,7 +529,7 @@
 
     .round-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 7px;
     }
 
@@ -521,27 +538,83 @@
       font-size: 11px;
     }
 
-    /* =========================================================
-       GAME
-       ========================================================= */
-
-    #gameScreen {
-      padding-top: 10px;
+    .submenu-grid {
+      display: grid;
+      gap: 9px;
+      margin-top: 16px;
     }
+
+    .submenu-btn {
+      width: 100%;
+      min-height: 60px;
+      padding: 11px 13px;
+      text-align: left;
+      color: var(--cream);
+      border-radius: 15px;
+      border: 1px solid rgba(212, 175, 55, 0.22);
+      background: var(--card);
+    }
+
+    .submenu-btn strong {
+      display: block;
+      color: var(--gold-light);
+    }
+
+    .submenu-btn small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+    }
+
+    /* =====================================================
+       COMPANY TURN
+       ===================================================== */
+
+    .turn-name {
+      margin: 8px 0;
+      color: var(--gold-light);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(28px, 8vw, 38px);
+    }
+
+    .submode-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 9px;
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.18);
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .sandbox-hint {
+      max-width: 430px;
+      margin: 13px auto 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* =====================================================
+       GAME TOPBAR
+       ===================================================== */
 
     .game-topbar {
       flex: 0 0 auto;
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
-      gap: 9px;
-      margin-bottom: 10px;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
     .exit-game-btn {
       min-height: 42px;
       padding: 7px 10px;
-      border-radius: 12px;
       color: var(--cream);
       background: var(--card);
       border: 1px solid rgba(212, 175, 55, 0.23);
@@ -550,6 +623,7 @@
 
     .game-top-center {
       min-width: 0;
+      text-align: center;
     }
 
     .game-mode-label {
@@ -571,22 +645,73 @@
       white-space: nowrap;
     }
 
-    .story-lives {
-      display: none;
-      color: #FF756C;
-      font-size: 13px;
-      letter-spacing: 1px;
-      text-align: right;
+    .duel-clocks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
-    .story-lives.visible {
+    .clock-card {
+      padding: 7px 9px;
+      border-radius: 11px;
+      background: rgba(11, 68, 48, 0.8);
+      border: 1px solid rgba(212, 175, 55, 0.18);
+      text-align: center;
+    }
+
+    .clock-card.active {
+      border-color: var(--gold);
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.1);
+    }
+
+    .clock-name {
       display: block;
+      color: var(--muted);
+      font-size: 9px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .clock-time {
+      display: block;
+      margin-top: 2px;
+      color: var(--gold-light);
+      font-size: 22px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .rotate-shell {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      transform-origin: center center;
+      transition: transform 0.6s ease;
+    }
+
+    .rotate-shell.sandbox-turn {
+      transform: rotate(-90deg);
+    }
+
+    .rotate-shell.duel-flip {
+      transform: rotate(180deg);
+    }
+
+    .game-inner {
+      width: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .progress-wrap {
       flex: 0 0 auto;
       height: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       overflow: hidden;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.08);
@@ -599,34 +724,14 @@
       transition: width 180ms ease;
     }
 
-    .timer-wrap {
-      flex: 0 0 auto;
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 8px;
-    }
-
-    .timer {
-      min-width: 55px;
-      padding: 4px 8px;
-      border-radius: 9px;
-      color: var(--gold-light);
-      background: rgba(212, 175, 55, 0.08);
-      border: 1px solid rgba(212, 175, 55, 0.16);
-      font-size: 11px;
-      font-weight: 800;
-      text-align: center;
-      font-variant-numeric: tabular-nums;
-    }
-
     .question-card {
       flex: 0 0 auto;
-      padding: 16px;
+      padding: 15px;
       border-radius: 18px;
       background: linear-gradient(145deg, #10583D, #0B4430);
       border: 1px solid rgba(212, 175, 55, 0.2);
       box-shadow: var(--shadow);
-      margin-bottom: 10px;
+      margin-bottom: 9px;
     }
 
     .question-category {
@@ -647,8 +752,8 @@
     }
 
     .answers {
-      min-height: 0;
       flex: 1;
+      min-height: 0;
       display: grid;
       grid-template-columns: 1fr;
       align-content: start;
@@ -663,7 +768,6 @@
       color: var(--cream);
       background: var(--card);
       border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 13px;
       line-height: 1.3;
     }
 
@@ -679,20 +783,17 @@
       border-color: var(--red);
     }
 
-    /* =========================================================
-       ХОД ИГРОКА
-       ========================================================= */
-
-    .turn-name {
-      margin: 8px 0;
+    .question-for-player {
+      margin: 0 0 5px;
       color: var(--gold-light);
       font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(28px, 8vw, 38px);
+      font-size: clamp(18px, 5vw, 23px);
+      font-weight: 700;
     }
 
-    /* =========================================================
-       ЗАВЕРШЕНИЕ
-       ========================================================= */
+    /* =====================================================
+       RESULTS
+       ===================================================== */
 
     .finish-icon {
       font-size: 50px;
@@ -721,14 +822,6 @@
       margin: 20px auto 0;
       display: grid;
       gap: 8px;
-    }
-
-    .lock-countdown {
-      margin: 12px 0 18px;
-      color: var(--gold-light);
-      font-size: 32px;
-      font-weight: 900;
-      font-variant-numeric: tabular-nums;
     }
 
     .results-list {
@@ -768,9 +861,17 @@
       font-weight: 900;
     }
 
-    /* =========================================================
+    .countdown {
+      margin: 12px 0 18px;
+      color: var(--gold-light);
+      font-size: 32px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* =====================================================
        MODALS
-       ========================================================= */
+       ===================================================== */
 
     .modal {
       position: fixed;
@@ -792,7 +893,7 @@
     .modal-card {
       width: min(100%, 470px);
       max-height: 88vh;
-      overflow: hidden;
+      overflow-y: auto;
       padding: 18px;
       border-radius: 20px;
       background: linear-gradient(145deg, #10583D, #0B4430);
@@ -833,7 +934,6 @@
       height: 30px;
       min-height: 30px;
       padding: 3px;
-      border: 0;
       border-radius: 99px;
       background: #173B2D;
       border: 1px solid rgba(212, 175, 55, 0.28);
@@ -910,28 +1010,6 @@
       font-weight: 800;
     }
 
-    /* =========================================================
-       RESPONSIVE
-       ========================================================= */
-
-    .btn-icon,
-    .game-icon,
-    .lock-icon,
-    .heart-icon {
-      width: 22px;
-      height: 22px;
-      object-fit: contain;
-      vertical-align: middle;
-    }
-
-    .lock-icon {
-      margin-left: 6px;
-    }
-
-    .heart-icon {
-      margin-right: 4px;
-    }
-
     @media (min-width: 520px) {
       .main-modes {
         grid-template-columns: repeat(3, 1fr);
@@ -944,16 +1022,8 @@
         justify-content: center;
       }
 
-      .mode-arrow {
-        margin-left: auto;
-      }
-
       .answers {
         grid-template-columns: 1fr 1fr;
-      }
-
-      .screen {
-        padding: 20px;
       }
     }
 
@@ -971,11 +1041,32 @@
 </head>
 
 <body>
+<div id="loadingScreen"
+     class="loading-screen"
+     role="status"
+     aria-live="polite">
+  <div class="loading-card">
+    <div class="loading-logo">☾</div>
+    <h1 class="loading-title">НУР</h1>
+    <p id="loadingStatus"
+       class="loading-status">
+      Загружаем вопросы...
+    </p>
+    <input id="loadingSlider"
+           class="loading-slider"
+           type="range"
+           min="0"
+           max="100"
+           value="0"
+           disabled
+           aria-label="Прогресс загрузки">
+  </div>
+</div>
 <div class="app">
 
-  <!-- =======================================================
-       1. ГЛАВНЫЙ ЭКРАН
-       ======================================================= -->
+  <!-- =====================================================
+       ГЛАВНЫЙ ЭКРАН
+       ===================================================== -->
 
   <section id="homeScreen" class="screen active">
     <div class="screen-content">
@@ -992,8 +1083,14 @@
         </p>
 
         <div class="record">
-          <span class="record-label">Ваш рекорд</span>
-          <strong id="bestScore" class="record-value">0</strong>
+          <span class="record-label">
+            Ваш рекорд
+          </span>
+
+          <strong id="bestScore"
+                  class="record-value">
+            0
+          </strong>
         </div>
       </div>
 
@@ -1001,28 +1098,42 @@
 
         <div class="main-modes">
 
-          <button class="main-mode-btn" onclick="startSingleMode()">
+          <button class="main-mode-btn"
+                  onclick="startSingleMode()">
             <span>
               <strong>Одиночная игра</strong>
               <small>Выберите категорию</small>
             </span>
+
             <span class="mode-arrow">›</span>
           </button>
 
-          <button class="main-mode-btn" onclick="openCompanyStep1()">
+          <button class="main-mode-btn"
+                  onclick="openCompanyStep1()">
             <span>
               <strong>Игра в компании</strong>
-              <small>2–4 игрока на одном устройстве</small>
+              <small>2–4 игрока • 3 уникальных режима</small>
             </span>
+
             <span class="mode-arrow">›</span>
           </button>
 
-          <button class="main-mode-btn" onclick="startStoryMode()">
+          <button class="main-mode-btn"
+                  onclick="startStoryMode()">
             <span>
-              <strong id="storyMainTitle">Микс-сюжет</strong>
-              <small>Все вопросы: easy → medium → hard</small>
-              <small id="storyMainStatus" class="story-level"></small>
+              <strong id="storyMainTitle">
+                Микс-сюжет
+              </strong>
+
+              <small>
+                Все вопросы: easy → medium → hard
+              </small>
+
+              <small id="storyMainStatus"
+                     class="story-level">
+              </small>
             </span>
+
             <span class="mode-arrow">›</span>
           </button>
 
@@ -1031,28 +1142,29 @@
         <div class="utility-row">
 
           <button class="utility-btn"
-                  aria-label="Настройки"
                   onclick="openSettings()">
-            <img src="gear.png" class="btn-icon" alt="Settings">
+            <img src="gear.png"
+                 class="btn-icon"
+                 alt="Settings">
           </button>
 
           <button class="utility-btn"
-                  aria-label="О проекте"
                   onclick="openAbout()">
-            <img src="info.png" class="btn-icon" alt="About">
+            <img src="info.png"
+                 class="btn-icon"
+                 alt="About">
           </button>
 
           <button class="utility-btn"
-                  aria-label="Лидеры"
                   onclick="openLeaderboard()">
-            <img src="trophy.png" class="btn-icon" alt="Leaderboard">
+            <img src="trophy.png"
+                 class="btn-icon"
+                 alt="Leaderboard">
           </button>
 
           <button class="utility-btn premium"
-                  aria-label="Premium"
                   onclick="openPremium()">
-            <img src="crown.png" class="btn-icon" alt="Premium">
-            <span>Premium</span>
+            👑 Premium
           </button>
 
         </div>
@@ -1063,68 +1175,101 @@
   </section>
 
 
-  <!-- =======================================================
-       2A. ОДИНОЧНАЯ ИГРА — ВЫБОР КАТЕГОРИИ
-       ======================================================= -->
+  <!-- =====================================================
+       ОДИНОЧНАЯ — КАТЕГОРИИ
+       ===================================================== -->
 
-  <section id="singleCategoryScreen" class="screen">
+  <section id="singleCategoryScreen"
+           class="screen">
+
     <div class="screen-content">
 
       <header class="screen-header">
+
         <div class="screen-header-main">
-          <p class="eyebrow">Шаг 1</p>
-          <h1 class="title">Категория</h1>
+
+          <p class="eyebrow">
+            Одиночная игра
+          </p>
+
+          <h1 class="title">
+            Категория
+          </h1>
+
         </div>
+
       </header>
 
-      <div id="singleCategoryList" class="category-list"></div>
+      <div id="singleCategoryList"
+           class="category-list">
+      </div>
 
       <div class="bottom-btn">
-        <button class="secondary-btn" onclick="goHome()">
-          <img src="back.png" class="game-icon" alt="Назад">
+
+        <button class="secondary-btn"
+                onclick="goHome()">
+          ⬅️ Назад
         </button>
+
       </div>
 
     </div>
+
   </section>
 
 
-  <!-- =======================================================
-       2B. ОДИНОЧНАЯ ИГРА — ИГРОВОЙ ЭКРАН
-       ======================================================= -->
+  <!-- =====================================================
+       ОДИНОЧНАЯ — ИГРА
+       ===================================================== -->
 
-  <section id="singleGameScreen" class="screen">
+  <section id="singleGameScreen"
+           class="screen">
+
     <div class="screen-content">
 
       <div class="game-topbar">
 
-        <button class="exit-game-btn" onclick="exitToMenuFromGame()">
+        <button class="exit-game-btn"
+                onclick="exitToMenuFromGame()">
           Выход в меню
         </button>
 
         <div class="game-top-center">
-          <div id="singleGameLabel" class="game-mode-label">
+
+          <div id="singleGameLabel"
+               class="game-mode-label">
             Одиночная игра
           </div>
 
           <div id="singleProgressText"
                class="question-progress">
-            Вопрос 1 из 1
           </div>
+
         </div>
 
-        <div id="singleScoreText" class="game-score">
+        <div id="singleScoreText"
+             class="game-score">
           0
         </div>
 
       </div>
 
       <div class="progress-wrap">
-        <div id="singleProgressBar" class="progress-bar"></div>
+        <div id="singleProgressBar"
+             class="progress-bar">
+        </div>
       </div>
 
-      <div class="timer-wrap">
-        <div id="singleTimer" class="timer">30</div>
+      <div class="game-topbar"
+           style="grid-template-columns:1fr auto;margin-bottom:8px;">
+
+        <div></div>
+
+        <div id="singleTimer"
+             class="game-score">
+          30
+        </div>
+
       </div>
 
       <article class="question-card">
@@ -1144,45 +1289,50 @@
       </div>
 
     </div>
+
   </section>
 
 
-  <!-- =======================================================
-       3A. КОМПАНИЯ — ШАГ 1
-       ======================================================= -->
+  <!-- =====================================================
+       КОМПАНИЯ — ШАГ 1
+       ===================================================== -->
 
-  <section id="companyStep1Screen" class="screen">
+  <section id="companyStep1Screen"
+           class="screen">
+
     <div class="screen-content">
 
       <div class="step-card">
 
-        <p class="eyebrow">Игра в компании • Шаг 1 из 3</p>
+        <p class="eyebrow">
+          Игра в компании • Шаг 1 из 2
+        </p>
 
         <h1 class="title">
           Сколько игроков?
         </h1>
 
         <p class="subtitle">
-          Выберите количество участников.
+          Выберите от 2 до 4 участников.
         </p>
 
         <div class="step-choice-grid">
 
           <button id="players2"
                   class="step-choice active"
-                  onclick="selectPlayerCount(2)">
+                  onclick="selectCompanyPlayerCount(2)">
             2
           </button>
 
           <button id="players3"
                   class="step-choice"
-                  onclick="selectPlayerCount(3)">
+                  onclick="selectCompanyPlayerCount(3)">
             3
           </button>
 
           <button id="players4"
                   class="step-choice"
-                  onclick="selectPlayerCount(4)">
+                  onclick="selectCompanyPlayerCount(4)">
             4
           </button>
 
@@ -1191,29 +1341,38 @@
       </div>
 
       <div class="setup-bottom">
-        <button class="primary-btn" onclick="openCompanyStep2()">
+
+        <button class="primary-btn"
+                onclick="openCompanyStep2()">
           Далее
         </button>
 
-        <button class="secondary-btn" onclick="goHome()">
-          <img src="back.png" class="game-icon" alt="Назад">
+        <button class="secondary-btn"
+                onclick="goHome()">
+          ⬅️ Назад
         </button>
+
       </div>
 
     </div>
+
   </section>
 
 
-  <!-- =======================================================
-       3B. КОМПАНИЯ — ШАГ 2
-       ======================================================= -->
+  <!-- =====================================================
+       КОМПАНИЯ — ШАГ 2
+       ===================================================== -->
 
-  <section id="companyStep2Screen" class="screen">
+  <section id="companyStep2Screen"
+           class="screen">
+
     <div class="screen-content">
 
       <div class="step-card">
 
-        <p class="eyebrow">Игра в компании • Шаг 2 из 3</p>
+        <p class="eyebrow">
+          Игра в компании • Шаг 2 из 3
+        </p>
 
         <h1 class="title">
           Имена игроков
@@ -1230,35 +1389,115 @@
       </div>
 
       <div class="setup-bottom">
+
         <div class="setup-two-buttons">
 
           <button class="secondary-btn"
                   onclick="openCompanyStep1()">
-            <img src="back.png" class="game-icon" alt="Назад">
+            Назад
           </button>
 
           <button class="primary-btn"
-                  onclick="openCompanyStep3()">
+                  onclick="openCompanySubmodeStep()">
             Далее
           </button>
 
         </div>
+
       </div>
 
     </div>
+
   </section>
 
 
-  <!-- =======================================================
-       3C. КОМПАНИЯ — ШАГ 3
-       ======================================================= -->
+  <!-- =====================================================
+       КОМПАНИЯ — ШАГ 3: ВЫБОР ПОД-РЕЖИМА
+       ===================================================== -->
 
-  <section id="companyStep3Screen" class="screen">
+  <section id="companySubmodeScreen"
+           class="screen">
+
     <div class="screen-content">
 
       <div class="step-card">
 
-        <p class="eyebrow">Игра в компании • Шаг 3 из 3</p>
+        <p class="eyebrow">
+          Игра в компании • Шаг 3 из 4
+        </p>
+
+        <h1 class="title">
+          Выберите режим
+        </h1>
+
+        <div class="submenu-grid">
+
+          <button class="submenu-btn"
+                  onclick="selectCompanySubmode('host')">
+            <strong>
+              🎤 С ведущим
+            </strong>
+
+            <small>
+              Классический режим с передачей хода
+            </small>
+          </button>
+
+          <button class="submenu-btn"
+                  onclick="selectCompanySubmode('sandbox')">
+            <strong>
+              🔄 Без ведущего (Песочница)
+            </strong>
+
+            <small>
+              Экран вращается к следующему игроку
+            </small>
+          </button>
+
+          <button id="duelModeButton"
+                  class="submenu-btn"
+                  onclick="selectCompanySubmode('duel')">
+            <strong>
+              ♟ PvP Дуэль (Шахматные часы)
+            </strong>
+
+            <small>
+              Только для двух игроков • 60 секунд каждому
+            </small>
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="setup-bottom">
+
+        <button class="secondary-btn"
+                onclick="openCompanyStep2()">
+          Назад
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       КОМПАНИЯ — ШАГ 4: НАСТРОЙКИ РАУНДА
+       ===================================================== -->
+
+  <section id="companyRoundSetupScreen"
+           class="screen">
+
+    <div class="screen-content">
+
+      <div class="step-card">
+
+        <p class="eyebrow">
+          Игра в компании • Настройки
+        </p>
 
         <h1 class="title">
           Настройки раунда
@@ -1280,29 +1519,34 @@
              class="round-grid">
         </div>
 
+        <div id="companySubmodeDescription"
+             class="subtitle">
+        </div>
+
       </div>
 
       <div class="setup-bottom">
 
         <button class="primary-btn"
-                onclick="startCompanyGame()">
+                onclick="startSelectedCompanyMode()">
           ЗАПУСТИТЬ
         </button>
 
         <button class="secondary-btn"
-                onclick="openCompanyStep2()">
-          <img src="back.png" class="game-icon" alt="Назад">
+                onclick="openCompanySubmodeStep()">
+          Назад
         </button>
 
       </div>
 
     </div>
+
   </section>
 
 
-  <!-- =======================================================
-       4. КОМПАНИЯ — ЭКРАН ПЕРЕД ХОДОМ
-       ======================================================= -->
+  <!-- =====================================================
+       КОМПАНИЯ — ХОД ИГРОКА
+       ===================================================== -->
 
   <section id="companyTurnScreen"
            class="screen screen-center">
@@ -1310,9 +1554,14 @@
     <div class="screen-content"
          style="height:auto;justify-content:center;text-align:center;">
 
-      <p class="eyebrow">Следующий ход</p>
+      <p id="companyTurnEyebrow"
+         class="eyebrow">
+        Следующий ход
+      </p>
 
-      <div class="finish-icon">☾</div>
+      <div class="finish-icon">
+        ☾
+      </div>
 
       <h1 class="finish-title">
         Ход игрока
@@ -1322,8 +1571,12 @@
            class="turn-name">
       </div>
 
-      <p class="subtitle">
-        Передайте устройство участнику.
+      <div id="companyTurnSubmode"
+           class="submode-badge">
+      </div>
+
+      <p id="companyTurnHint"
+         class="sandbox-hint">
       </p>
 
       <button class="primary-btn"
@@ -1336,31 +1589,35 @@
   </section>
 
 
-  <!-- =======================================================
-       4B. ИГРА В КОМПАНИИ
-       ======================================================= -->
+  <!-- =====================================================
+       КОМПАНИЯ — С ВЕДУЩИМ
+       ===================================================== -->
 
-  <section id="companyGameScreen" class="screen">
+  <section id="companyHostGameScreen"
+           class="screen">
+
     <div class="screen-content">
 
       <div class="game-topbar">
 
         <button class="exit-game-btn"
-                onclick="exitToMenuFromGame()">
+                onclick="exitCompanyToMenu()">
           Выход в меню
         </button>
 
         <div class="game-top-center">
-          <div id="companyGameLabel"
-               class="game-mode-label">
+
+          <div class="game-mode-label">
+            🎤 С ведущим
           </div>
 
-          <div id="companyProgressText"
+          <div id="hostProgressText"
                class="question-progress">
           </div>
+
         </div>
 
-        <div id="companyScoreText"
+        <div id="hostScoreText"
              class="game-score">
           0
         </div>
@@ -1368,24 +1625,28 @@
       </div>
 
       <div class="progress-wrap">
-        <div id="companyProgressBar"
+        <div id="hostProgressBar"
              class="progress-bar">
         </div>
       </div>
 
       <article class="question-card">
 
-        <p id="companyQuestionCategory"
+        <p id="hostPlayerPrompt"
+           class="question-for-player">
+        </p>
+
+        <p id="hostQuestionCategory"
            class="question-category">
         </p>
 
-        <h2 id="companyQuestionText"
+        <h2 id="hostQuestionText"
             class="question-text">
         </h2>
 
       </article>
 
-      <div id="companyAnswers"
+      <div id="hostAnswers"
            class="answers">
       </div>
 
@@ -1393,18 +1654,241 @@
   </section>
 
 
-  <!-- =======================================================
-       5. МИКС-СЮЖЕТ
-       ======================================================= -->
+  <!-- =====================================================
+       КОМПАНИЯ — ПЕСОЧНИЦА
+       ===================================================== -->
 
-  <section id="storyGameScreen" class="screen">
+  <section id="companySandboxGameScreen"
+           class="screen">
+
+    <div class="screen-content">
+
+      <div class="game-topbar">
+
+        <button class="exit-game-btn"
+                onclick="exitCompanyToMenu()">
+          Выход в меню
+        </button>
+
+        <div class="game-top-center">
+
+          <div class="game-mode-label">
+            🔄 Без ведущего
+          </div>
+
+          <div id="sandboxProgressText"
+               class="question-progress">
+          </div>
+
+        </div>
+
+        <div id="sandboxScoreText"
+             class="game-score">
+          0
+        </div>
+
+      </div>
+
+      <div class="rotate-shell"
+           id="sandboxRotateShell">
+
+        <div class="game-inner">
+
+          <div class="progress-wrap">
+            <div id="sandboxProgressBar"
+                 class="progress-bar">
+            </div>
+          </div>
+
+          <article class="question-card">
+
+            <p id="sandboxPlayerPrompt"
+               class="question-for-player">
+            </p>
+
+            <p id="sandboxQuestionCategory"
+               class="question-category">
+            </p>
+
+            <h2 id="sandboxQuestionText"
+                class="question-text">
+            </h2>
+
+          </article>
+
+          <div id="sandboxAnswers"
+               class="answers">
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       КОМПАНИЯ — PVП ДУЭЛЬ
+       ===================================================== -->
+
+  <section id="companyDuelGameScreen"
+           class="screen">
+
+    <div class="screen-content">
+
+      <div class="game-topbar">
+
+        <button class="exit-game-btn"
+                onclick="exitCompanyToMenu()">
+          Выход в меню
+        </button>
+
+        <div class="game-top-center">
+
+          <div class="game-mode-label">
+            ♟ PvP Дуэль
+          </div>
+
+          <div id="duelProgressText"
+               class="question-progress">
+          </div>
+
+        </div>
+
+        <div id="duelScoreText"
+             class="game-score">
+          0
+        </div>
+
+      </div>
+
+      <div class="duel-clocks">
+
+        <div id="duelClockCard0"
+             class="clock-card active">
+
+          <span id="duelPlayerName0"
+                class="clock-name">
+            Игрок 1
+          </span>
+
+          <span id="duelClock0"
+                class="clock-time">
+            01:00
+          </span>
+
+        </div>
+
+        <div id="duelClockCard1"
+             class="clock-card">
+
+          <span id="duelPlayerName1"
+                class="clock-name">
+            Игрок 2
+          </span>
+
+          <span id="duelClock1"
+                class="clock-time">
+            01:00
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="rotate-shell"
+           id="duelRotateShell">
+
+        <div class="game-inner">
+
+          <div class="progress-wrap">
+            <div id="duelProgressBar"
+                 class="progress-bar">
+            </div>
+          </div>
+
+          <article class="question-card">
+
+            <p id="duelPlayerPrompt"
+               class="question-for-player">
+            </p>
+
+            <p id="duelQuestionCategory"
+               class="question-category">
+            </p>
+
+            <h2 id="duelQuestionText"
+                class="question-text">
+            </h2>
+
+          </article>
+
+          <div id="duelAnswers"
+               class="answers">
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       ФИНАЛ КОМПАНИИ
+       ===================================================== -->
+
+  <section id="companyResultsScreen"
+           class="screen screen-center">
+
+    <div class="screen-content"
+         style="height:auto;justify-content:center;text-align:center;">
+
+      <div class="finish-icon">
+        🏆
+      </div>
+
+      <p class="eyebrow">
+        Игра завершена
+      </p>
+
+      <h1 class="finish-title">
+        Результаты компании
+      </h1>
+
+      <div id="companyResultsList"
+           class="results-list">
+      </div>
+
+      <div class="finish-actions">
+
+        <button class="primary-btn"
+                onclick="goHome()">
+          Главное меню
+        </button>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       МИКС-СЮЖЕТ
+       ===================================================== -->
+
+  <section id="storyGameScreen"
+           class="screen">
+
     <div class="screen-content">
 
       <div class="game-topbar">
 
         <button class="exit-game-btn"
                 onclick="leaveStoryToMenu()">
-          <img src="back.png" class="game-icon" alt="Назад">
+          ⬅️ Назад в меню
         </button>
 
         <div class="game-top-center">
@@ -1433,14 +1917,12 @@
       </div>
 
       <div class="game-topbar"
-           style="margin-bottom:8px;">
-
-        <div></div>
+           style="grid-template-columns:1fr auto;margin-bottom:8px;">
 
         <div></div>
 
         <div id="storyLivesText"
-             class="story-lives visible">
+             class="game-score">
         </div>
 
       </div>
@@ -1465,9 +1947,9 @@
   </section>
 
 
-  <!-- =======================================================
-       5B. БЛОКИРОВКА СЮЖЕТА
-       ======================================================= -->
+  <!-- =====================================================
+       СЮЖЕТ ЗАБЛОКИРОВАН
+       ===================================================== -->
 
   <section id="storyBlockedScreen"
            class="screen screen-center">
@@ -1475,35 +1957,37 @@
     <div class="screen-content"
          style="height:auto;justify-content:center;text-align:center;">
 
-      <div class="finish-icon"><img src="lock.png" class="lock-icon" alt="Locked" style="width:52px;height:52px;"></div>
+      <div class="finish-icon">
+        🔒
+      </div>
 
       <h1 class="finish-title">
-        Вы потеряли все жизни
+        Все жизни закончились
       </h1>
 
       <p class="finish-text">
-        Жизни восстанавливаются автоматически.
         Одна жизнь восстанавливается каждые 2 минуты.
+        Время продолжает идти даже при закрытом приложении.
       </p>
 
       <div id="storyBlockedTimer"
-           class="lock-countdown">
+           class="countdown">
         02:00
       </div>
 
       <button class="secondary-btn"
               style="max-width:360px;margin:auto;"
               onclick="goHome()">
-        <img src="back.png" class="game-icon" alt="Назад">
+        Главное меню
       </button>
 
     </div>
   </section>
 
 
-  <!-- =======================================================
-       6. ЗАВЕРШЕНИЕ СЮЖЕТА
-       ======================================================= -->
+  <!-- =====================================================
+       СЮЖЕТ ЗАВЕРШЁН
+       ===================================================== -->
 
   <section id="storyCompleteScreen"
            class="screen screen-center">
@@ -1511,7 +1995,9 @@
     <div class="screen-content"
          style="height:auto;justify-content:center;text-align:center;">
 
-      <div class="finish-icon">🏆</div>
+      <div class="finish-icon">
+        🏆
+      </div>
 
       <h1 class="finish-title">
         Поздравляем!<br>
@@ -1551,9 +2037,9 @@
   </section>
 
 
-  <!-- =======================================================
-       МОДАЛКА НАСТРОЕК
-       ======================================================= -->
+  <!-- =====================================================
+       НАСТРОЙКИ
+       ===================================================== -->
 
   <div id="settingsModal"
        class="modal"
@@ -1561,7 +2047,9 @@
 
     <div class="modal-card">
 
-      <p class="eyebrow">Настройки</p>
+      <p class="eyebrow">
+        Настройки
+      </p>
 
       <h2 class="modal-title">
         Звук
@@ -1569,9 +2057,9 @@
 
       <div class="toggle-row">
 
-        <div>
+        <span>
           Звуковые эффекты
-        </div>
+        </span>
 
         <button id="soundToggle"
                 class="toggle on"
@@ -1589,9 +2077,9 @@
   </div>
 
 
-  <!-- =======================================================
-       МОДАЛКА О ПРОЕКТЕ
-       ======================================================= -->
+  <!-- =====================================================
+       О ПРОЕКТЕ
+       ===================================================== -->
 
   <div id="aboutModal"
        class="modal"
@@ -1599,21 +2087,23 @@
 
     <div class="modal-card">
 
-      <p class="eyebrow">О проекте</p>
+      <p class="eyebrow">
+        О проекте
+      </p>
 
       <h2 class="modal-title">
         НУР
       </h2>
 
       <p class="modal-text">
-        Образовательная викторина по исламской тематике.
-        Вопросы загружаются из отдельного файла
+        Образовательная исламская викторина.
+        Вопросы загружаются из внешнего файла
         <strong>questions.js</strong>.
       </p>
 
       <p class="modal-text">
-        Информацию по религиозным вопросам рекомендуется
-        проверять по достоверным источникам.
+        Религиозную информацию рекомендуется
+        сверять с достоверными источниками.
       </p>
 
       <button class="secondary-btn"
@@ -1625,9 +2115,9 @@
   </div>
 
 
-  <!-- =======================================================
-       МОДАЛКА ЛИДЕРОВ
-       ======================================================= -->
+  <!-- =====================================================
+       LEADERBOARD
+       ===================================================== -->
 
   <div id="leaderboardModal"
        class="modal"
@@ -1635,7 +2125,9 @@
 
     <div class="modal-card">
 
-      <p class="eyebrow">Leaderboard</p>
+      <p class="eyebrow">
+        Leaderboard
+      </p>
 
       <h2 class="modal-title">
         🏆 Мировой Топ
@@ -1654,9 +2146,9 @@
   </div>
 
 
-  <!-- =======================================================
-       МОДАЛКА PREMIUM
-       ======================================================= -->
+  <!-- =====================================================
+       PREMIUM
+       ===================================================== -->
 
   <div id="premiumModal"
        class="modal"
@@ -1664,18 +2156,21 @@
 
     <div class="modal-card">
 
-      <p class="eyebrow">Premium Mode</p>
+      <p class="eyebrow">
+        Premium Mode
+      </p>
 
       <h2 class="modal-title">
-        <img src="crown.png" class="btn-icon" alt="Premium">
-        Premium
+        👑 Premium
       </h2>
 
       <div class="premium-note">
         Активируйте Premium режим:
         <strong>
-          Бесконечные жизни в сюжете, эксклюзивные категории,
-          безлимитный режим компании и поддержка разработчика!
+          Бесконечные жизни в сюжете,
+          эксклюзивные категории,
+          безлимитный режим компании
+          и поддержка разработчика!
         </strong>
       </div>
 
@@ -1702,9 +2197,9 @@
   </div>
 
 
-  <!-- =======================================================
-       МОДАЛКА ТРЕБУЕТ PREMIUM
-       ======================================================= -->
+  <!-- =====================================================
+       PREMIUM REQUIRED
+       ===================================================== -->
 
   <div id="premiumRequiredModal"
        class="modal"
@@ -1712,11 +2207,12 @@
 
     <div class="modal-card">
 
-      <p class="eyebrow">Premium</p>
+      <p class="eyebrow">
+        Premium
+      </p>
 
       <h2 class="modal-title">
-        <img src="lock.png" class="lock-icon" alt="Locked">
-        Доступ закрыт
+        🔒 Доступ закрыт
       </h2>
 
       <p id="premiumRequiredText"
@@ -1728,8 +2224,7 @@
 
         <button class="primary-btn"
                 onclick="openPremiumFromRequired()">
-          <img src="crown.png" class="btn-icon" alt="Premium">
-          <span>Premium</span>
+          👑 Premium
         </button>
 
         <button class="secondary-btn"
@@ -1774,7 +2269,8 @@ function playSound(type) {
     return;
   }
 
-  const audio = new Audio(soundFiles[type]);
+  const audio =
+    new Audio(soundFiles[type]);
 
   audio.volume = 0.65;
 
@@ -1807,37 +2303,68 @@ const SOLO_TIME_SECONDS = 30;
 
 let soloTimerId = null;
 
-let soloTimeLeft = SOLO_TIME_SECONDS;
+let soloTimeLeft =
+  SOLO_TIME_SECONDS;
 
 
 /* =========================================================
-   КОМПАНИЯ
+   НОВАЯ АРХИТЕКТУРА КОМПАНИИ
    ========================================================= */
 
 let companyPlayerCount = 2;
 
 let companyPlayers = [];
 
+let companySubmode = null;
+
 let companyCategory = "all";
 
 let companyQuestionsPerPlayer = 5;
+
+let companyQuestionPool = [];
 
 let companyCurrentPlayer = 0;
 
 let companyCurrentQuestion = 0;
 
-let companyQuestionPool = [];
+
+/*
+ * Состояние дуэли.
+ */
+
+const DUEL_START_SECONDS = 60;
+
+let duelTimes = [
+  DUEL_START_SECONDS,
+  DUEL_START_SECONDS
+];
+
+let duelActivePlayer = 0;
+
+let duelTimerId = null;
+
+let duelQuestionNumber = 0;
+
+
+/*
+ * Состояние песочницы.
+ */
+
+let sandboxRotation = 0;
 
 
 /* =========================================================
    МИКС-СЮЖЕТ
    ========================================================= */
 
-const STORY_PROGRESS_KEY = "storyModeProgress";
+const STORY_PROGRESS_KEY =
+  "storyModeProgress";
 
-const STORY_SCORE_KEY = "storyModeScore";
+const STORY_SCORE_KEY =
+  "storyModeScore";
 
-const STORY_LIVES_KEY = "storyLives";
+const STORY_LIVES_KEY =
+  "storyLives";
 
 const STORY_LIFE_TIMESTAMP_KEY =
   "storyLifeTimestamp";
@@ -1846,84 +2373,42 @@ const STORY_MAX_LIVES = 5;
 
 const STORY_REGEN_SECONDS = 120;
 
-let storyLives = getStoredNumber(
-  STORY_LIVES_KEY,
-  STORY_MAX_LIVES
-);
+let storyLives =
+  getStoredNumber(
+    STORY_LIVES_KEY,
+    STORY_MAX_LIVES
+  );
 
-
-/* =========================================================
-   ИНИЦИАЛИЗАЦИЯ
-   ========================================================= */
 
 if (
   storyLives < 0 ||
   storyLives > STORY_MAX_LIVES
 ) {
-  storyLives = STORY_MAX_LIVES;
-}
+  storyLives =
+    STORY_MAX_LIVES;
 
-saveStoryLives();
-
-
-/* =========================================================
-   ЭКРАНЫ
-   ========================================================= */
-
-const screenIds = [
-  "homeScreen",
-  "singleCategoryScreen",
-  "singleGameScreen",
-  "companyStep1Screen",
-  "companyStep2Screen",
-  "companyStep3Screen",
-  "companyTurnScreen",
-  "companyGameScreen",
-  "storyGameScreen",
-  "storyBlockedScreen",
-  "storyCompleteScreen"
-];
-
-function showScreen(id) {
-  screenIds.forEach(screenId => {
-    const screen =
-      document.getElementById(screenId);
-
-    if (screen) {
-      screen.classList.toggle(
-        "active",
-        screenId === id
-      );
-    }
-  });
+  saveStoryLives();
 }
 
 
 /* =========================================================
-   ДОМАШНИЙ ЭКРАН
+   ОБЩИЕ HELPERS
    ========================================================= */
 
-function goHome() {
-  stopSoloTimer();
-  answerLocked = false;
-  currentMode = null;
-  updateHomeUI();
-  showScreen("homeScreen");
-}
-
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
-
-function getStoredNumber(key, fallback) {
+function getStoredNumber(
+  key,
+  fallback
+) {
   const value =
-    Number(localStorage.getItem(key));
+    Number(
+      localStorage.getItem(key)
+    );
 
   return Number.isFinite(value)
     ? value
     : fallback;
 }
+
 
 function escapeHtml(value) {
   return String(value)
@@ -1934,38 +2419,49 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+
 function getQuestions() {
+
   if (
     typeof questions === "undefined" ||
     !Array.isArray(questions)
   ) {
+
     console.error(
-      "Массив questions не найден. Проверьте questions.js."
+      "Массив questions не найден. " +
+      "Проверьте questions.js."
     );
 
     return [];
   }
 
-  return questions.filter(question => {
-    return (
+  return questions.filter(
+    question =>
       question &&
-      Array.isArray(question.options) &&
+      Array.isArray(
+        question.options
+      ) &&
       question.options.length === 4 &&
-      Number.isInteger(question.correct) &&
+      Number.isInteger(
+        question.correct
+      ) &&
       question.correct >= 0 &&
       question.correct < 4
-    );
-  });
+  );
 }
 
+
 function shuffleArray(array) {
-  const result = [...array];
+
+  const result =
+    [...array];
 
   for (
     let i = result.length - 1;
     i > 0;
     i--
   ) {
+
     const j =
       Math.floor(
         Math.random() * (i + 1)
@@ -1983,36 +2479,16 @@ function shuffleArray(array) {
   return result;
 }
 
-function difficultyValue(difficulty) {
-  const order = {
-    easy: 0,
-    medium: 1,
-    hard: 2
-  };
 
-  return order[difficulty] ?? 99;
-}
-
-function getCategoryName(category) {
-  const names = {
-    prophets: "Истории Пророков",
-    islam_basics: "Основы Ислама",
-    quran_hadith: "Коран и Хадисы",
-    companions: "Сподвижники Пророка",
-    islam_history: "История Ислама"
-  };
-
-  return names[category] || "Все темы";
-}
-
-
-/* =========================================================
-   БАНДЛ-ПРАВИЛО:
-   ПЕРЕД КАЖДЫМ ВОПРОСОМ ПЕРЕМЕШИВАЕМ OPTIONS,
-   СОХРАНЯЯ ПРАВИЛЬНЫЙ ОТВЕТ
-   ========================================================= */
+/*
+ * БАНДЛ-ПРАВИЛО:
+ * перед каждым вопросом варианты превращаются
+ * в пары text/isCorrect и только после этого
+ * перемешиваются.
+ */
 
 function prepareQuestion(question) {
+
   const pairedOptions =
     question.options.map(
       (text, index) => ({
@@ -2023,7 +2499,9 @@ function prepareQuestion(question) {
     );
 
   const shuffledOptions =
-    shuffleArray(pairedOptions);
+    shuffleArray(
+      pairedOptions
+    );
 
   return {
     ...question,
@@ -2032,47 +2510,150 @@ function prepareQuestion(question) {
 }
 
 
-/* =========================================================
-   РЕКОРД
-   ========================================================= */
+function getCategoryName(category) {
 
-function updateBestScore(score) {
-  const best =
-    getStoredNumber(
-      "bestScore",
-      0
-    );
+  const names = {
+    prophets:
+      "Истории Пророков",
 
-  if (score > best) {
-    localStorage.setItem(
-      "bestScore",
-      String(score)
-    );
-  }
+    islam_basics:
+      "Основы Ислама",
 
-  updateHomeUI();
+    quran_hadith:
+      "Коран и Хадисы",
+
+    companions:
+      "Сподвижники Пророка",
+
+    islam_history:
+      "История Ислама"
+  };
+
+  return (
+    names[category] ||
+    "Исламская Викторина"
+  );
 }
 
+
+function difficultyValue(
+  difficulty
+) {
+
+  const order = {
+    easy: 0,
+    medium: 1,
+    hard: 2
+  };
+
+  return (
+    order[difficulty] ??
+    99
+  );
+}
+
+
+/* =========================================================
+   НАВИГАЦИЯ
+   ========================================================= */
+
+const screenIds = [
+
+  "homeScreen",
+
+  "singleCategoryScreen",
+
+  "singleGameScreen",
+
+  "companyStep1Screen",
+
+  "companyStep2Screen",
+
+  "companySubmodeScreen",
+
+  "companyRoundSetupScreen",
+
+  "companyTurnScreen",
+
+  "companyHostGameScreen",
+
+  "companySandboxGameScreen",
+
+  "companyDuelGameScreen",
+
+  "companyResultsScreen",
+
+  "storyGameScreen",
+
+  "storyBlockedScreen",
+
+  "storyCompleteScreen"
+];
+
+
+function showScreen(id) {
+
+  screenIds.forEach(
+    screenId => {
+
+      const screen =
+        document.getElementById(
+          screenId
+        );
+
+      if (screen) {
+        screen.classList.toggle(
+          "active",
+          screenId === id
+        );
+      }
+    }
+  );
+}
+
+
+/* =========================================================
+   HOME
+   ========================================================= */
+
+function goHome() {
+
+  stopSoloTimer();
+
+  stopDuelTimer();
+
+  answerLocked = false;
+
+  currentMode = null;
+
+  updateHomeUI();
+
+  showScreen(
+    "homeScreen"
+  );
+}
+
+
 function updateHomeUI() {
+
   const best =
     getStoredNumber(
       "bestScore",
       0
     );
 
-  const bestElement =
-    document.getElementById(
-      "bestScore"
-    );
-
-  bestElement.textContent =
+  document.getElementById(
+    "bestScore"
+  ).textContent =
     `${best} очков`;
 
-  const totalStory =
-    getStoryQuestions().length;
+
+  const storyQuestions =
+    getStoryQuestions();
 
   const storyIndex =
     getStoryProgress();
+
 
   const storyTitle =
     document.getElementById(
@@ -2084,100 +2665,154 @@ function updateHomeUI() {
       "storyMainStatus"
     );
 
-  if (totalStory === 0) {
-    storyStatus.textContent =
-      "Нет вопросов";
-    return;
-  }
 
   if (
     storyIndex >=
-    totalStory
+    storyQuestions.length &&
+    storyQuestions.length > 0
   ) {
+
+    storyTitle.textContent =
+      "Микс-сюжет";
+
     storyStatus.textContent =
-      "Пройден полностью";
-  } else if (storyIndex > 0) {
-    storyStatus.textContent =
-      `Уровень ${storyIndex + 1} из ${totalStory}`;
-  } else {
-    storyStatus.textContent =
-      `${totalStory} вопросов`;
+      isPremium
+        ? "Пройден • ∞ жизни"
+        : "Пройден";
+
+    return;
   }
 
-  if (isPremium) {
-    storyStatus.textContent +=
-      " • ∞ жизней";
+
+  if (
+    storyIndex > 0
+  ) {
+
+    storyTitle.textContent =
+      `Микс-сюжет (Уровень ${
+        storyIndex + 1
+      })`;
+
   } else {
-    storyStatus.textContent +=
-      ` • ${storyLives}`;
-    storyStatus.insertAdjacentHTML(
-      "beforeend",
-      ' <img src="heart.png" class="heart-icon" alt="Life">'
-    );
+
+    storyTitle.textContent =
+      "Микс-сюжет";
   }
 
-  storyTitle.textContent =
-    storyIndex > 0 &&
-    storyIndex < totalStory
-      ? `Микс-сюжет (Уровень ${storyIndex + 1})`
-      : "Микс-сюжет";
+
+  storyStatus.textContent =
+    isPremium
+      ? "∞ жизни"
+      : `${storyLives} ❤️`;
 }
 
 
 /* =========================================================
-   ОДИНОЧНАЯ ИГРА — КАТЕГОРИИ
+   PROGRESS BAR
+   ========================================================= */
+
+function updateProgressBar(
+  elementId,
+  current,
+  total
+) {
+
+  const element =
+    document.getElementById(
+      elementId
+    );
+
+  if (!element) {
+    return;
+  }
+
+  const percent =
+    total > 0
+      ? (current / total) * 100
+      : 0;
+
+  element.style.width =
+    `${Math.min(
+      100,
+      percent
+    )}%`;
+}
+
+
+/* =========================================================
+   ОДИНОЧНАЯ ИГРА
    ========================================================= */
 
 function startSingleMode() {
+
   playSound("select");
+
   renderSingleCategories();
+
   showScreen(
     "singleCategoryScreen"
   );
 }
 
+
 function renderSingleCategories() {
+
   const list =
     document.getElementById(
       "singleCategoryList"
     );
 
   const categories = [
+
     {
       id: "all",
       title: "Все темы",
-      description: "Все доступные вопросы"
+      description:
+        "Все доступные вопросы"
     },
+
     {
       id: "prophets",
       title: "Истории Пророков",
-      description: "Истории и события"
+      description:
+        "Истории и события"
     },
+
     {
       id: "islam_basics",
       title: "Основы Ислама",
-      description: "Базовые знания"
+      description:
+        "Базовые знания"
     },
+
     {
       id: "quran_hadith",
       title: "Коран и Хадисы",
-      description: "Коран и Сунна"
+      description:
+        "Коран и Сунна"
     },
+
     {
       id: "companions",
       title: "Сподвижники Пророка",
-      description: "Premium-категория",
+      description:
+        "Premium-категория",
       premium: true
     },
+
     {
       id: "islam_history",
       title: "История Ислама",
-      description: "Premium-категория",
+      description:
+        "Premium-категория",
       premium: true
     }
+
   ];
 
+
   list.innerHTML = "";
+
 
   categories.forEach(
     category => {
@@ -2190,73 +2825,110 @@ function renderSingleCategories() {
       button.className =
         "category-btn";
 
+
       const locked =
         category.premium &&
         !isPremium;
 
+
       button.innerHTML = `
         <span class="category-btn-main">
+
           <strong>
-            ${locked ? '<img src="lock.png" class="lock-icon" alt="Locked">' : ""}
-            ${escapeHtml(category.title)}
+            ${
+              locked
+                ? "🔒 "
+                : ""
+            }
+
+            ${escapeHtml(
+              category.title
+            )}
           </strong>
+
           <small>
-            ${escapeHtml(category.description)}
+            ${escapeHtml(
+              category.description
+            )}
           </small>
+
         </span>
+
         <span class="category-lock">
-          ${locked ? "›" : "›"}
+          ${locked ? "🔒" : "›"}
         </span>
       `;
 
+
       if (locked) {
-        button.onclick = () => {
-          openPremiumRequired(
-            "Эта категория доступна только в Premium."
-          );
-        };
+
+        button.onclick =
+          () => {
+
+            openPremiumRequired(
+              "Эта категория доступна только в Premium."
+            );
+          };
+
       } else {
-        button.onclick = () => {
-          startSingleGame(
-            category.id
-          );
-        };
+
+        button.onclick =
+          () => {
+
+            startSingleGame(
+              category.id
+            );
+          };
       }
 
-      list.appendChild(button);
+
+      list.appendChild(
+        button
+      );
     }
   );
 }
 
-function startSingleGame(category) {
+
+function startSingleGame(
+  category
+) {
+
   const pool =
     getQuestions().filter(
       question =>
         category === "all" ||
-        question.category === category
+        question.category ===
+        category
     );
 
+
   if (!pool.length) {
+
     alert(
       "В этой категории пока нет вопросов."
     );
+
     return;
   }
 
+
   playSound("select");
 
-  currentMode = "single";
-
-  singleCategory = category;
+  currentMode =
+    "single";
 
   currentQuestions =
-    shuffleArray(pool);
+    shuffleArray(
+      pool
+    );
 
   currentQuestionIndex = 0;
 
   currentScore = 0;
 
   answerLocked = false;
+
 
   showScreen(
     "singleGameScreen"
@@ -2267,16 +2939,18 @@ function startSingleGame(category) {
 
 
 /* =========================================================
-   ОДИНОЧНАЯ ИГРА — ТАЙМЕР
+   SOLO TIMER
    ========================================================= */
 
 function startSoloTimer() {
+
   stopSoloTimer();
 
   soloTimeLeft =
     SOLO_TIME_SECONDS;
 
   updateSoloTimerUI();
+
 
   soloTimerId =
     setInterval(
@@ -2286,9 +2960,11 @@ function startSoloTimer() {
 
         updateSoloTimerUI();
 
+
         if (
           soloTimeLeft <= 0
         ) {
+
           handleSoloTimeout();
         }
 
@@ -2297,35 +2973,58 @@ function startSoloTimer() {
     );
 }
 
+
 function stopSoloTimer() {
-  if (soloTimerId !== null) {
+
+  if (
+    soloTimerId !== null
+  ) {
+
     clearInterval(
       soloTimerId
     );
 
-    soloTimerId = null;
+    soloTimerId =
+      null;
   }
 }
 
+
 function updateSoloTimerUI() {
+
   const timer =
     document.getElementById(
       "singleTimer"
     );
 
   timer.textContent =
-    soloTimeLeft;
+    String(
+      soloTimeLeft
+    );
 
   timer.style.opacity =
     soloTimeLeft <= 5
-      ? "0.7"
+      ? "0.65"
       : "1";
 }
 
+
 function handleSoloTimeout() {
-  if (answerLocked) return;
+
+  if (answerLocked) {
+    return;
+  }
 
   answerLocked = true;
+
+  stopSoloTimer();
+
+
+  const question =
+    currentQuestions[
+      currentQuestionIndex
+    ];
+
 
   const buttons =
     [
@@ -2334,16 +3033,6 @@ function handleSoloTimeout() {
       )
     ];
 
-  const question =
-    currentQuestions[
-      currentQuestionIndex
-    ];
-
-  const correctIndex =
-    question.options.findIndex(
-      option =>
-        option.isCorrect
-    );
 
   buttons.forEach(
     button => {
@@ -2351,30 +3040,50 @@ function handleSoloTimeout() {
     }
   );
 
-  if (
-    buttons[correctIndex]
-  ) {
-    buttons[
-      correctIndex
-    ].classList.add(
+
+  const correct =
+    question.options.find(
+      option =>
+        option.isCorrect
+    );
+
+
+  const correctButton =
+    buttons.find(
+      button =>
+        button.textContent ===
+        correct.text
+    );
+
+
+  if (correctButton) {
+    correctButton.classList.add(
       "correct"
     );
   }
 
+
   playSound("error");
+
 
   setTimeout(
     () => {
+
       currentQuestionIndex++;
+
 
       if (
         currentQuestionIndex >=
         currentQuestions.length
       ) {
+
         finishSingleGame();
+
       } else {
+
         showSingleQuestion();
       }
+
     },
     1000
   );
@@ -2382,11 +3091,13 @@ function handleSoloTimeout() {
 
 
 /* =========================================================
-   ОДИНОЧНАЯ ИГРА — ВОПРОС
+   SOLO QUESTION
    ========================================================= */
 
 function showSingleQuestion() {
+
   answerLocked = false;
+
 
   const question =
     prepareQuestion(
@@ -2395,14 +3106,12 @@ function showSingleQuestion() {
       ]
     );
 
+
   currentQuestions[
     currentQuestionIndex
-  ] = question;
+  ] =
+    question;
 
-  document.getElementById(
-    "singleGameLabel"
-  ).textContent =
-    "Одиночная игра";
 
   document.getElementById(
     "singleProgressText"
@@ -2413,10 +3122,12 @@ function showSingleQuestion() {
       currentQuestions.length
     }`;
 
+
   document.getElementById(
     "singleScoreText"
   ).textContent =
-    `${currentScore} очков`;
+    `${currentScore}`;
+
 
   document.getElementById(
     "singleQuestionCategory"
@@ -2425,10 +3136,12 @@ function showSingleQuestion() {
       question.category
     );
 
+
   document.getElementById(
     "singleQuestionText"
   ).textContent =
     question.question;
+
 
   updateProgressBar(
     "singleProgressBar",
@@ -2436,12 +3149,15 @@ function showSingleQuestion() {
     currentQuestions.length
   );
 
+
   const answers =
     document.getElementById(
       "singleAnswers"
     );
 
+
   answers.innerHTML = "";
+
 
   question.options.forEach(
     option => {
@@ -2451,18 +3167,24 @@ function showSingleQuestion() {
           "button"
         );
 
+
       button.className =
         "answer";
+
 
       button.textContent =
         option.text;
 
-      button.onclick = () => {
-        checkSingleAnswer(
-          option.isCorrect,
-          button
-        );
-      };
+
+      button.onclick =
+        () => {
+
+          checkSingleAnswer(
+            option.isCorrect,
+            button
+          );
+        };
+
 
       answers.appendChild(
         button
@@ -2470,17 +3192,25 @@ function showSingleQuestion() {
     }
   );
 
+
   startSoloTimer();
 }
+
 
 function checkSingleAnswer(
   isCorrect,
   selectedButton
 ) {
-  if (answerLocked) return;
+
+  if (answerLocked) {
+    return;
+  }
+
 
   answerLocked = true;
+
   stopSoloTimer();
+
 
   const buttons =
     [
@@ -2489,11 +3219,13 @@ function checkSingleAnswer(
       )
     ];
 
+
   buttons.forEach(
     button => {
       button.disabled = true;
     }
   );
+
 
   if (isCorrect) {
 
@@ -2511,39 +3243,47 @@ function checkSingleAnswer(
       "wrong"
     );
 
-    const question =
+
+    const correctOption =
       currentQuestions[
         currentQuestionIndex
-      ];
+      ].options.find(
+        option =>
+          option.isCorrect
+      );
+
 
     const correctButton =
       buttons.find(
         button =>
           button.textContent ===
-          question.options.find(
-            option =>
-              option.isCorrect
-          ).text
+          correctOption.text
       );
 
+
     if (correctButton) {
+
       correctButton.classList.add(
         "correct"
       );
     }
 
+
     playSound("error");
   }
+
 
   document.getElementById(
     "singleScoreText"
   ).textContent =
-    `${currentScore} очков`;
+    `${currentScore}`;
+
 
   setTimeout(
     () => {
 
       currentQuestionIndex++;
+
 
       if (
         currentQuestionIndex >=
@@ -2562,24 +3302,25 @@ function checkSingleAnswer(
   );
 }
 
+
 function finishSingleGame() {
+
   stopSoloTimer();
 
   updateBestScore(
     currentScore
   );
 
-  document.getElementById(
-    "resultsScore"
-  ).textContent =
-    `Вы набрали ${currentScore} из ${currentQuestions.length} очков.`;
-
-  document.getElementById(
-    "companyResults"
-  ).innerHTML = "";
-
-  showScreen(
-    "resultsScreen"
+  showCompanyResultsScreen(
+    [
+      {
+        name: "Ваш результат",
+        score: currentScore
+      }
+    ],
+    `Вы набрали ${currentScore} из ${
+      currentQuestions.length
+    }`
   );
 }
 
@@ -2589,6 +3330,7 @@ function finishSingleGame() {
    ========================================================= */
 
 function openCompanyStep1() {
+
   playSound("select");
 
   renderCompanyStep1();
@@ -2598,29 +3340,30 @@ function openCompanyStep1() {
   );
 }
 
+
 function renderCompanyStep1() {
-  [
-    2,
-    3,
-    4
-  ].forEach(
+
+  [2, 3, 4].forEach(
     count => {
 
-      const button =
-        document.getElementById(
+      document
+        .getElementById(
           `players${count}`
+        )
+        .classList.toggle(
+          "active",
+          count ===
+          companyPlayerCount
         );
-
-      button.classList.toggle(
-        "active",
-        count ===
-        companyPlayerCount
-      );
     }
   );
 }
 
-function selectPlayerCount(count) {
+
+function selectCompanyPlayerCount(
+  count
+) {
+
   companyPlayerCount =
     count;
 
@@ -2635,6 +3378,7 @@ function selectPlayerCount(count) {
    ========================================================= */
 
 function openCompanyStep2() {
+
   playSound("select");
 
   renderCompanyStep2();
@@ -2644,13 +3388,17 @@ function openCompanyStep2() {
   );
 }
 
+
 function renderCompanyStep2() {
+
   const container =
     document.getElementById(
       "companyPlayerInputs"
     );
 
+
   container.innerHTML = "";
+
 
   for (
     let i = 0;
@@ -2663,17 +3411,22 @@ function renderCompanyStep2() {
         "input"
       );
 
+
     input.className =
       "player-input";
 
+
     input.placeholder =
       `Имя игрока ${i + 1}`;
+
 
     input.value =
       companyPlayers[i]?.name ||
       "";
 
+
     input.maxLength = 24;
+
 
     container.appendChild(
       input
@@ -2681,13 +3434,16 @@ function renderCompanyStep2() {
   }
 }
 
+
 function readCompanyPlayers() {
+
   const inputs =
     [
       ...document.querySelectorAll(
         "#companyPlayerInputs .player-input"
       )
     ];
+
 
   companyPlayers =
     inputs.map(
@@ -2703,31 +3459,146 @@ function readCompanyPlayers() {
 
 
 /* =========================================================
-   КОМПАНИЯ — ШАГ 3
+   КОМПАНИЯ — ПОД-РЕЖИМЫ
    ========================================================= */
 
-function openCompanyStep3() {
+function openCompanySubmodeStep() {
+
   playSound("select");
 
   readCompanyPlayers();
 
-  renderCompanyStep3();
+  updateDuelAvailability();
 
   showScreen(
-    "companyStep3Screen"
+    "companySubmodeScreen"
   );
 }
 
-function renderCompanyStep3() {
-  renderCompanyCategoryChoices();
-  renderCompanyQuestionCountChoices();
+
+function updateDuelAvailability() {
+
+  const button =
+    document.getElementById(
+      "duelModeButton"
+    );
+
+
+  if (
+    companyPlayerCount !== 2
+  ) {
+
+    button.style.opacity =
+      "0.45";
+
+    button.innerHTML = `
+      <strong>
+        ♟ PvP Дуэль
+      </strong>
+
+      <small>
+        Недоступно: нужно ровно 2 игрока
+      </small>
+    `;
+
+    return;
+  }
+
+
+  button.style.opacity =
+    "1";
+
+
+  button.innerHTML = `
+    <strong>
+      ♟ PvP Дуэль (Шахматные часы)
+    </strong>
+
+    <small>
+      2 игрока • 60 секунд каждому
+    </small>
+  `;
 }
 
+
+function selectCompanySubmode(
+  mode
+) {
+
+  playSound("select");
+
+
+  if (
+    mode === "duel" &&
+    companyPlayerCount !== 2
+  ) {
+
+    alert(
+      "PvP Дуэль доступна только для 2 игроков."
+    );
+
+    return;
+  }
+
+
+  companySubmode =
+    mode;
+
+
+  renderCompanyRoundSetup();
+
+
+  showScreen(
+    "companyRoundSetupScreen"
+  );
+}
+
+
+/* =========================================================
+   КОМПАНИЯ — НАСТРОЙКИ РАУНДА
+   ========================================================= */
+
+function renderCompanyRoundSetup() {
+
+  renderCompanyCategoryChoices();
+
+  renderCompanyQuestionCountChoices();
+
+  const description =
+    document.getElementById(
+      "companySubmodeDescription"
+    );
+
+
+  if (
+    companySubmode === "host"
+  ) {
+
+    description.textContent =
+      "С ведущим: вопрос показывается текущему игроку, затем ход передаётся следующему.";
+
+  } else if (
+    companySubmode === "sandbox"
+  ) {
+
+    description.textContent =
+      "Песочница: после хода экран плавно поворачивается на 90° против часовой стрелки.";
+
+  } else {
+
+    description.textContent =
+      "PvP Дуэль: у каждого игрока общий банк времени 60 секунд.";
+  }
+}
+
+
 function renderCompanyCategoryChoices() {
+
   const container =
     document.getElementById(
       "companyCategoryChoices"
     );
+
 
   const categories = [
     ["all", "Все"],
@@ -2738,7 +3609,9 @@ function renderCompanyCategoryChoices() {
     ["islam_history", "История"]
   ];
 
+
   container.innerHTML = "";
+
 
   categories.forEach(
     ([id, title]) => {
@@ -2748,15 +3621,20 @@ function renderCompanyCategoryChoices() {
           "button"
         );
 
+
       button.className =
         "step-choice";
 
+
+      const premiumCategory =
+        id === "companions" ||
+        id === "islam_history";
+
+
       const locked =
-        (
-          id === "companions" ||
-          id === "islam_history"
-        ) &&
+        premiumCategory &&
         !isPremium;
+
 
       button.classList.toggle(
         "active",
@@ -2764,35 +3642,43 @@ function renderCompanyCategoryChoices() {
         companyCategory === id
       );
 
+
       button.classList.toggle(
         "locked",
         locked
       );
 
-      button.innerHTML = locked
-        ? `<img src="lock.png" class="lock-icon" alt="Locked"><span>${escapeHtml(title)}</span>`
-        : escapeHtml(title);
+
+      button.textContent =
+        locked
+          ? `🔒 ${title}`
+          : title;
+
 
       if (locked) {
 
-        button.onclick = () => {
-          openPremiumRequired(
-            "Эта категория доступна только в Premium."
-          );
-        };
+        button.onclick =
+          () => {
+
+            openPremiumRequired(
+              "Эта категория доступна только в Premium."
+            );
+          };
 
       } else {
 
-        button.onclick = () => {
+        button.onclick =
+          () => {
 
-          companyCategory =
-            id;
+            companyCategory =
+              id;
 
-          playSound("select");
+            playSound("select");
 
-          renderCompanyCategoryChoices();
-        };
+            renderCompanyCategoryChoices();
+          };
       }
+
 
       container.appendChild(
         button
@@ -2801,84 +3687,91 @@ function renderCompanyCategoryChoices() {
   );
 }
 
+
 function renderCompanyQuestionCountChoices() {
+
   const container =
     document.getElementById(
       "companyQuestionCountChoices"
     );
 
+
   const choices = [
-    {
-      value: 3,
-      title: "3"
-    },
-    {
-      value: 5,
-      title: "5"
-    },
-    {
-      value: 10,
-      title: "10"
-    },
-    {
-      value: 50,
-      title: "50"
-    }
+    [3, "3"],
+    [5, "5"],
+    [10, "10"],
+    [
+      50,
+      isPremium
+        ? "50"
+        : "🔒 50"
+    ]
   ];
+
 
   container.innerHTML = "";
 
+
   choices.forEach(
-    choice => {
+    ([value, title]) => {
 
       const button =
         document.createElement(
           "button"
         );
 
+
       button.className =
         "step-choice";
 
+
       const locked =
-        choice.value === 50 &&
+        value === 50 &&
         !isPremium;
+
 
       button.classList.toggle(
         "active",
         !locked &&
         companyQuestionsPerPlayer ===
-        choice.value
+        value
       );
+
 
       button.classList.toggle(
         "locked",
         locked
       );
 
-      button.innerHTML = locked
-        ? '<img src="lock.png" class="lock-icon" alt="Locked"><span>50</span>'
-        : escapeHtml(choice.title);
+
+      button.textContent =
+        title;
+
 
       if (locked) {
 
-        button.onclick = () => {
-          openPremiumRequired(
-            "50 вопросов на игрока доступны только в Premium."
-          );
-        };
+        button.onclick =
+          () => {
+
+            openPremiumRequired(
+              "50 вопросов на игрока доступны только в Premium."
+            );
+          };
 
       } else {
 
-        button.onclick = () => {
+        button.onclick =
+          () => {
 
-          companyQuestionsPerPlayer =
-            choice.value;
+            companyQuestionsPerPlayer =
+              value;
 
-          playSound("select");
+            playSound("select");
 
-          renderCompanyQuestionCountChoices();
-        };
+            renderCompanyQuestionCountChoices();
+          };
       }
+
 
       container.appendChild(
         button
@@ -2889,98 +3782,215 @@ function renderCompanyQuestionCountChoices() {
 
 
 /* =========================================================
-   КОМПАНИЯ — ЗАПУСК
+   КОМПАНИЯ — ПОДГОТОВКА ВОПРОСОВ
    ========================================================= */
 
-function startCompanyGame() {
-
-  playSound("select");
-
-  readCompanyPlayers();
+function prepareCompanyPool() {
 
   let pool =
     getQuestions().filter(
-      question => {
-
-        if (
-          companyCategory === "all"
-        ) {
-          return true;
-        }
-
-        return (
-          question.category ===
-          companyCategory
-        );
-      }
+      question =>
+        companyCategory === "all" ||
+        question.category ===
+        companyCategory
     );
 
+
   if (!pool.length) {
+
     alert(
       "В выбранной категории нет вопросов."
     );
-    return;
+
+    return false;
   }
 
-  const requiredQuestions =
-    companyPlayerCount *
-    companyQuestionsPerPlayer;
 
   /*
-   * Если вопросов меньше необходимого количества,
-   * допускаем повторения только в режиме "Все".
-   * Для отдельных категорий лучше честно предупредить.
+   * Для дуэли используем количество вопросов
+   * как общее количество вопросов матча.
+   *
+   * Для host/sandbox каждый игрок получает
+   * выбранное количество.
    */
 
   if (
+    companySubmode === "duel"
+  ) {
+
+    const needed =
+      companyQuestionsPerPlayer;
+
+
+    if (
+      pool.length < needed
+    ) {
+
+      const extended = [];
+
+      while (
+        extended.length <
+        needed
+      ) {
+
+        extended.push(
+          ...shuffleArray(pool)
+        );
+      }
+
+      pool =
+        extended.slice(
+          0,
+          needed
+        );
+
+    } else {
+
+      pool =
+        shuffleArray(
+          pool
+        ).slice(
+          0,
+          needed
+        );
+    }
+
+
+    companyQuestionPool =
+      pool;
+
+    return true;
+  }
+
+
+  const required =
+    companyPlayerCount *
+    companyQuestionsPerPlayer;
+
+
+  if (
     pool.length <
-    requiredQuestions
+    required
   ) {
 
     if (
       companyCategory !== "all"
     ) {
 
-      alert(
-        `В выбранной категории только ${pool.length} вопросов. ` +
-        `Для этой игры нужно ${requiredQuestions}.`
-      );
+      /*
+       * Premium-компания получает безлимитный
+       * пакет 50 вопросов.
+       * При меньшем количестве вопросов
+       * разрешаем повторения, чтобы режим
+       * не ломался.
+       */
 
-      return;
+      if (
+        isPremium &&
+        companyQuestionsPerPlayer === 50
+      ) {
+
+        const extended = [];
+
+        while (
+          extended.length <
+          required
+        ) {
+
+          extended.push(
+            ...shuffleArray(pool)
+          );
+        }
+
+        pool =
+          extended.slice(
+            0,
+            required
+          );
+
+      } else {
+
+        alert(
+          `В категории только ${pool.length} вопросов. ` +
+          `Для выбранных настроек нужно ${required}.`
+        );
+
+        return false;
+      }
+
+    } else {
+
+      const extended = [];
+
+      while (
+        extended.length <
+        required
+      ) {
+
+        extended.push(
+          ...shuffleArray(pool)
+        );
+      }
+
+      pool =
+        extended.slice(
+          0,
+          required
+        );
     }
-
-    const extended = [];
-
-    while (
-      extended.length <
-      requiredQuestions
-    ) {
-      extended.push(
-        ...shuffleArray(pool)
-      );
-    }
-
-    pool =
-      extended.slice(
-        0,
-        requiredQuestions
-      );
 
   } else {
 
     pool =
-      shuffleArray(pool)
-        .slice(
-          0,
-          requiredQuestions
-        );
+      shuffleArray(
+        pool
+      ).slice(
+        0,
+        required
+      );
   }
+
 
   companyQuestionPool =
     pool;
 
+  return true;
+}
+
+
+/* =========================================================
+   КОМПАНИЯ — ЗАПУСК ВЫБРАННОГО ПОД-РЕЖИМА
+   ========================================================= */
+
+function startSelectedCompanyMode() {
+
+  playSound("select");
+
+  readCompanyPlayers();
+
+
+  if (
+    companySubmode === "duel" &&
+    companyPlayerCount !== 2
+  ) {
+
+    alert(
+      "PvP Дуэль доступна только для 2 игроков."
+    );
+
+    return;
+  }
+
+
+  if (!prepareCompanyPool()) {
+    return;
+  }
+
+
   companyCurrentPlayer = 0;
+
   companyCurrentQuestion = 0;
+
 
   companyPlayers.forEach(
     player => {
@@ -2988,12 +3998,23 @@ function startCompanyGame() {
     }
   );
 
+
+  if (
+    companySubmode === "duel"
+  ) {
+
+    startDuelMode();
+
+    return;
+  }
+
+
   showCompanyTurnScreen();
 }
 
 
 /* =========================================================
-   КОМПАНИЯ — ПЕРЕД ХОДОМ
+   КОМПАНИЯ — ЭКРАН ХОДА
    ========================================================= */
 
 function showCompanyTurnScreen() {
@@ -3003,62 +4024,106 @@ function showCompanyTurnScreen() {
       companyCurrentPlayer
     ];
 
+
+  const badge =
+    document.getElementById(
+      "companyTurnSubmode"
+    );
+
+  const hint =
+    document.getElementById(
+      "companyTurnHint"
+    );
+
+
   document.getElementById(
     "companyTurnName"
   ).textContent =
     player.name;
+
+
+  if (
+    companySubmode === "host"
+  ) {
+
+    badge.textContent =
+      "С ведущим";
+
+    hint.textContent =
+      "Ведущий передаёт устройство следующему игроку после ответа.";
+
+  } else {
+
+    badge.textContent =
+      "Без ведущего";
+
+    hint.textContent =
+      "После каждого хода экран повернётся к следующему игроку.";
+  }
+
 
   showScreen(
     "companyTurnScreen"
   );
 }
 
+
 function beginCompanyTurn() {
+
   playSound("select");
 
-  currentMode = "company";
+  currentQuestionIndex = 0;
 
   currentScore =
     companyPlayers[
       companyCurrentPlayer
     ].score;
 
-  currentQuestionIndex = 0;
-
-  /*
-   * Для каждого игрока выделяем его собственную
-   * часть заранее подготовленного пула.
-   */
-
-  const start =
-    companyCurrentPlayer *
-    companyQuestionsPerPlayer;
-
-  const end =
-    start +
-    companyQuestionsPerPlayer;
-
   currentQuestions =
-    companyQuestionPool.slice(
-      start,
-      end
+    companyQuestionPool;
+
+
+  if (
+    companySubmode === "host"
+  ) {
+
+    showScreen(
+      "companyHostGameScreen"
     );
 
-  showScreen(
-    "companyGameScreen"
-  );
+    showHostQuestion();
 
-  showCompanyQuestion();
+  } else {
+
+    sandboxRotation = 0;
+
+    const shell =
+      document.getElementById(
+        "sandboxRotateShell"
+      );
+
+    shell.style.transform =
+      `rotate(${
+        sandboxRotation
+      }deg)`;
+
+    showScreen(
+      "companySandboxGameScreen"
+    );
+
+    showSandboxQuestion();
+  }
 }
 
 
 /* =========================================================
-   КОМПАНИЯ — ВОПРОС
+   КОМПАНИЯ — С ВЕДУЩИМ
    ========================================================= */
 
-function showCompanyQuestion() {
+function showHostQuestion() {
 
   answerLocked = false;
+
 
   const question =
     prepareQuestion(
@@ -3067,19 +4132,15 @@ function showCompanyQuestion() {
       ]
     );
 
+
   currentQuestions[
     currentQuestionIndex
-  ] = question;
+  ] =
+    question;
+
 
   document.getElementById(
-    "companyGameLabel"
-  ).textContent =
-    companyPlayers[
-      companyCurrentPlayer
-    ].name;
-
-  document.getElementById(
-    "companyProgressText"
+    "hostProgressText"
   ).textContent =
     `Вопрос ${
       currentQuestionIndex + 1
@@ -3087,35 +4148,148 @@ function showCompanyQuestion() {
       currentQuestions.length
     }`;
 
-  document.getElementById(
-    "companyScoreText"
-  ).textContent =
-    `${currentScore} очков`;
 
   document.getElementById(
-    "companyQuestionCategory"
+    "hostScoreText"
+  ).textContent =
+    `${currentScore}`;
+
+
+  document.getElementById(
+    "hostPlayerPrompt"
+  ).textContent =
+    `Вопрос для: ${
+      companyPlayers[
+        companyCurrentPlayer
+      ].name
+    }`;
+
+
+  document.getElementById(
+    "hostQuestionCategory"
   ).textContent =
     getCategoryName(
       question.category
     );
 
+
   document.getElementById(
-    "companyQuestionText"
+    "hostQuestionText"
   ).textContent =
     question.question;
 
+
   updateProgressBar(
-    "companyProgressBar",
+    "hostProgressBar",
     currentQuestionIndex + 1,
     currentQuestions.length
   );
 
-  const answers =
-    document.getElementById(
-      "companyAnswers"
+
+  renderCompanyAnswers(
+    "hostAnswers",
+    question,
+    "host"
+  );
+}
+
+
+/* =========================================================
+   КОМПАНИЯ — ПЕСОЧНИЦА
+   ========================================================= */
+
+function showSandboxQuestion() {
+
+  answerLocked = false;
+
+
+  const question =
+    prepareQuestion(
+      currentQuestions[
+        currentQuestionIndex
+      ]
     );
 
-  answers.innerHTML = "";
+
+  currentQuestions[
+    currentQuestionIndex
+  ] =
+    question;
+
+
+  document.getElementById(
+    "sandboxProgressText"
+  ).textContent =
+    `Вопрос ${
+      currentQuestionIndex + 1
+    } из ${
+      currentQuestions.length
+    }`;
+
+
+  document.getElementById(
+    "sandboxScoreText"
+  ).textContent =
+    `${currentScore}`;
+
+
+  document.getElementById(
+    "sandboxPlayerPrompt"
+  ).textContent =
+    `Ход: ${
+      companyPlayers[
+        companyCurrentPlayer
+      ].name
+    }`;
+
+
+  document.getElementById(
+    "sandboxQuestionCategory"
+  ).textContent =
+    getCategoryName(
+      question.category
+    );
+
+
+  document.getElementById(
+    "sandboxQuestionText"
+  ).textContent =
+    question.question;
+
+
+  updateProgressBar(
+    "sandboxProgressBar",
+    currentQuestionIndex + 1,
+    currentQuestions.length
+  );
+
+
+  renderCompanyAnswers(
+    "sandboxAnswers",
+    question,
+    "sandbox"
+  );
+}
+
+
+/*
+ * Общий рендер ответов компании.
+ */
+
+function renderCompanyAnswers(
+  containerId,
+  question,
+  mode
+) {
+
+  const container =
+    document.getElementById(
+      containerId
+    );
+
+
+  container.innerHTML = "";
+
 
   question.options.forEach(
     option => {
@@ -3125,47 +4299,78 @@ function showCompanyQuestion() {
           "button"
         );
 
+
       button.className =
         "answer";
+
 
       button.textContent =
         option.text;
 
-      button.onclick = () => {
-        checkCompanyAnswer(
-          option.isCorrect,
-          button
-        );
-      };
 
-      answers.appendChild(
+      button.onclick =
+        () => {
+
+          handleCompanyAnswer(
+            mode,
+            option.isCorrect,
+            button
+          );
+        };
+
+
+      container.appendChild(
         button
       );
     }
   );
 }
 
-function checkCompanyAnswer(
+
+/* =========================================================
+   ОБЩИЙ ОБРАБОТЧИК ОТВЕТА HOST / SANDBOX
+   ========================================================= */
+
+function handleCompanyAnswer(
+  mode,
   isCorrect,
   selectedButton
 ) {
 
-  if (answerLocked) return;
+  if (answerLocked) {
+    return;
+  }
+
 
   answerLocked = true;
+
+
+  const containerId =
+    mode === "host"
+      ? "hostAnswers"
+      : "sandboxAnswers";
+
 
   const buttons =
     [
       ...document.querySelectorAll(
-        "#companyAnswers .answer"
+        `#${containerId} .answer`
       )
     ];
+
 
   buttons.forEach(
     button => {
       button.disabled = true;
     }
   );
+
+
+  const question =
+    currentQuestions[
+      currentQuestionIndex
+    ];
+
 
   if (isCorrect) {
 
@@ -3183,16 +4388,13 @@ function checkCompanyAnswer(
       "wrong"
     );
 
-    const question =
-      currentQuestions[
-        currentQuestionIndex
-      ];
 
     const correctOption =
       question.options.find(
         option =>
           option.isCorrect
       );
+
 
     const correctButton =
       buttons.find(
@@ -3201,52 +4403,65 @@ function checkCompanyAnswer(
           correctOption.text
       );
 
+
     if (correctButton) {
       correctButton.classList.add(
         "correct"
       );
     }
 
+
     playSound("error");
   }
 
+
+  companyPlayers[
+    companyCurrentPlayer
+  ].score =
+    currentScore;
+
+
   document.getElementById(
-    "companyScoreText"
+    mode === "host"
+      ? "hostScoreText"
+      : "sandboxScoreText"
   ).textContent =
-    `${currentScore} очков`;
+    `${currentScore}`;
+
 
   setTimeout(
     () => {
 
       currentQuestionIndex++;
 
-      companyPlayers[
-        companyCurrentPlayer
-      ].score =
-        currentScore;
 
       if (
         currentQuestionIndex >=
         currentQuestions.length
       ) {
 
-        companyCurrentPlayer++;
-
-        if (
-          companyCurrentPlayer >=
-          companyPlayers.length
-        ) {
-
-          finishCompanyGame();
-
-        } else {
-
-          showCompanyTurnScreen();
-        }
+        finishNewCompanyGame();
 
       } else {
 
-        showCompanyQuestion();
+        companyCurrentPlayer =
+          (
+            companyCurrentPlayer +
+            1
+          ) %
+          companyPlayers.length;
+
+        if (
+          mode === "sandbox"
+        ) {
+
+          rotateSandboxToNextPlayer(
+            companyCurrentPlayer
+          );
+        } else {
+
+          showHostQuestion();
+        }
       }
 
     },
@@ -3256,25 +4471,646 @@ function checkCompanyAnswer(
 
 
 /* =========================================================
-   КОМПАНИЯ — ФИНАЛ
+   ПЕСОЧНИЦА — ПОВОРОТ К СЛЕДУЮЩЕМУ ИГРОКУ
    ========================================================= */
 
-function finishCompanyGame() {
+function rotateSandboxToNextPlayer(
+  nextPlayer
+) {
 
-  const sorted =
+  const playerCount =
+    companyPlayers.length;
+
+  const turnAngle =
+    playerCount === 2 ||
+    (
+      playerCount === 3 &&
+      nextPlayer === 0
+    )
+      ? 180
+      : 90;
+
+  sandboxRotation -= turnAngle;
+
+
+  const shell =
+    document.getElementById(
+      "sandboxRotateShell"
+    );
+
+
+  shell.classList.add(
+    "sandbox-turn"
+  );
+
+
+  shell.style.transform =
+    `rotate(${
+      sandboxRotation
+    }deg)`;
+
+
+  currentScore =
+    companyPlayers[
+      companyCurrentPlayer
+    ].score;
+
+
+  setTimeout(
+    () => {
+
+      showSandboxQuestion();
+
+    },
+    620
+  );
+}
+
+
+/* =========================================================
+   PVП ДУЭЛЬ
+   ========================================================= */
+
+function startDuelMode() {
+
+  if (
+    companyPlayers.length !== 2
+  ) {
+
+    alert(
+      "PvP Дуэль доступна только для 2 игроков."
+    );
+
+    return;
+  }
+
+
+  duelTimes = [
+    DUEL_START_SECONDS,
+    DUEL_START_SECONDS
+  ];
+
+
+  duelActivePlayer = 0;
+
+  duelQuestionNumber = 0;
+
+
+  stopDuelTimer();
+
+
+  /*
+   * Для дуэли выбранное количество вопросов
+   * является общим количеством вопросов матча.
+   */
+
+  companyCurrentQuestion = 0;
+
+  currentScore = 0;
+
+  currentQuestions =
+    companyQuestionPool;
+
+
+  showScreen(
+    "companyDuelGameScreen"
+  );
+
+
+  updateDuelClockUI();
+
+  showDuelQuestion();
+
+  startDuelTimer();
+}
+
+
+function startDuelTimer() {
+
+  stopDuelTimer();
+
+
+  duelTimerId =
+    setInterval(
+      () => {
+
+        duelTimes[
+          duelActivePlayer
+        ]--;
+
+
+        updateDuelClockUI();
+
+
+        if (
+          duelTimes[
+            duelActivePlayer
+          ] <= 0
+        ) {
+
+          duelTimes[
+            duelActivePlayer
+          ] = 0;
+
+
+          stopDuelTimer();
+
+
+          finishDuel(
+            duelActivePlayer
+          );
+        }
+
+      },
+      1000
+    );
+}
+
+
+function stopDuelTimer() {
+
+  if (
+    duelTimerId !== null
+  ) {
+
+    clearInterval(
+      duelTimerId
+    );
+
+    duelTimerId =
+      null;
+  }
+}
+
+
+function formatClock(
+  seconds
+) {
+
+  const safe =
+    Math.max(
+      0,
+      seconds
+    );
+
+
+  const minutes =
+    Math.floor(
+      safe / 60
+    );
+
+
+  const remainder =
+    safe % 60;
+
+
+  return (
+    String(minutes)
+      .padStart(2, "0") +
+    ":" +
+    String(remainder)
+      .padStart(2, "0")
+  );
+}
+
+
+function updateDuelClockUI() {
+
+  document.getElementById(
+    "duelClock0"
+  ).textContent =
+    formatClock(
+      duelTimes[0]
+    );
+
+
+  document.getElementById(
+    "duelClock1"
+  ).textContent =
+    formatClock(
+      duelTimes[1]
+    );
+
+
+  document.getElementById(
+    "duelPlayerName0"
+  ).textContent =
+    companyPlayers[0]?.name ||
+    "Игрок 1";
+
+
+  document.getElementById(
+    "duelPlayerName1"
+  ).textContent =
+    companyPlayers[1]?.name ||
+    "Игрок 2";
+
+
+  document.getElementById(
+    "duelClockCard0"
+  ).classList.toggle(
+    "active",
+    duelActivePlayer === 0
+  );
+
+
+  document.getElementById(
+    "duelClockCard1"
+  ).classList.toggle(
+    "active",
+    duelActivePlayer === 1
+  );
+}
+
+
+function showDuelQuestion() {
+
+  answerLocked = false;
+
+
+  if (
+    duelQuestionNumber >=
+    currentQuestions.length
+  ) {
+
+    finishDuelByQuestions();
+
+    return;
+  }
+
+
+  const question =
+    prepareQuestion(
+      currentQuestions[
+        duelQuestionNumber
+      ]
+    );
+
+
+  currentQuestions[
+    duelQuestionNumber
+  ] =
+    question;
+
+
+  document.getElementById(
+    "duelProgressText"
+  ).textContent =
+    `Вопрос ${
+      duelQuestionNumber + 1
+    } из ${
+      currentQuestions.length
+    }`;
+
+
+  document.getElementById(
+    "duelScoreText"
+  ).textContent =
+    `${companyPlayers[
+      duelActivePlayer
+    ].score}`;
+
+
+  document.getElementById(
+    "duelPlayerPrompt"
+  ).textContent =
+    `Ход: ${
+      companyPlayers[
+        duelActivePlayer
+      ].name
+    }`;
+
+
+  document.getElementById(
+    "duelQuestionCategory"
+  ).textContent =
+    getCategoryName(
+      question.category
+    );
+
+
+  document.getElementById(
+    "duelQuestionText"
+  ).textContent =
+    question.question;
+
+
+  updateProgressBar(
+    "duelProgressBar",
+    duelQuestionNumber + 1,
+    currentQuestions.length
+  );
+
+
+  const answers =
+    document.getElementById(
+      "duelAnswers"
+    );
+
+
+  answers.innerHTML = "";
+
+
+  question.options.forEach(
+    option => {
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+
+      button.className =
+        "answer";
+
+
+      button.textContent =
+        option.text;
+
+
+      button.onclick =
+        () => {
+
+          handleDuelAnswer(
+            option.isCorrect,
+            button
+          );
+        };
+
+
+      answers.appendChild(
+        button
+      );
+    }
+  );
+}
+
+
+/*
+ * При любом ответе игрок немедленно передаёт ход.
+ */
+
+function handleDuelAnswer(
+  isCorrect,
+  selectedButton
+) {
+
+  if (answerLocked) {
+    return;
+  }
+
+
+  answerLocked = true;
+
+  stopDuelTimer();
+
+
+  const buttons =
+    [
+      ...document.querySelectorAll(
+        "#duelAnswers .answer"
+      )
+    ];
+
+
+  buttons.forEach(
+    button => {
+      button.disabled = true;
+    }
+  );
+
+
+  const question =
+    currentQuestions[
+      duelQuestionNumber
+    ];
+
+
+  if (isCorrect) {
+
+    selectedButton.classList.add(
+      "correct"
+    );
+
+    companyPlayers[
+      duelActivePlayer
+    ].score++;
+
+    playSound("correct");
+
+  } else {
+
+    selectedButton.classList.add(
+      "wrong"
+    );
+
+
+    const correctOption =
+      question.options.find(
+        option =>
+          option.isCorrect
+      );
+
+
+    const correctButton =
+      buttons.find(
+        button =>
+          button.textContent ===
+          correctOption.text
+      );
+
+
+    if (correctButton) {
+      correctButton.classList.add(
+        "correct"
+      );
+    }
+
+
+    playSound("error");
+  }
+
+
+  document.getElementById(
+    "duelScoreText"
+  ).textContent =
+    `${companyPlayers[
+      duelActivePlayer
+    ].score}`;
+
+
+  setTimeout(
+    () => {
+
+      duelQuestionNumber++;
+
+
+      if (
+        duelQuestionNumber >=
+        currentQuestions.length
+      ) {
+
+        finishDuelByQuestions();
+
+        return;
+      }
+
+
+      /*
+       * Переход хода к другому игроку.
+       */
+
+      duelActivePlayer =
+        duelActivePlayer === 0
+          ? 1
+          : 0;
+
+
+      flipDuelScreen();
+
+
+      setTimeout(
+        () => {
+
+          showDuelQuestion();
+
+          startDuelTimer();
+
+        },
+        620
+      );
+
+    },
+    750
+  );
+}
+
+
+/*
+ * Зеркальный разворот на 180 градусов.
+ */
+
+function flipDuelScreen() {
+
+  const shell =
+    document.getElementById(
+      "duelRotateShell"
+    );
+
+
+  shell.classList.toggle(
+    "duel-flip"
+  );
+}
+
+
+function finishDuel(
+  loserIndex
+) {
+
+  stopDuelTimer();
+
+
+  const winnerIndex =
+    loserIndex === 0
+      ? 1
+      : 0;
+
+
+  const winner =
+    companyPlayers[
+      winnerIndex
+    ];
+
+
+  const loser =
+    companyPlayers[
+      loserIndex
+    ];
+
+
+  showCompanyResultsScreen(
+    [
+      winner,
+      loser
+    ],
+    `Время закончилось у ${loser.name}. Победитель — ${winner.name}.`
+  );
+}
+
+
+function finishDuelByQuestions() {
+
+  stopDuelTimer();
+
+
+  const players =
     [...companyPlayers].sort(
       (a, b) =>
         b.score - a.score
     );
 
+
+  let message;
+
+
+  if (
+    players[0].score ===
+    players[1].score
+  ) {
+
+    message =
+      "По очкам ничья!";
+
+  } else {
+
+    message =
+      `Победитель — ${players[0].name}.`;
+  }
+
+
+  showCompanyResultsScreen(
+    players,
+    message
+  );
+}
+
+
+/* =========================================================
+   КОМПАНИЯ — ОБЩИЙ ФИНАЛ
+   ========================================================= */
+
+function finishNewCompanyGame() {
+
+  const sortedPlayers =
+    [...companyPlayers].sort(
+      (a, b) =>
+        b.score - a.score
+    );
+
+
+  showCompanyResultsScreen(
+    sortedPlayers,
+    `Победитель — ${sortedPlayers[0].name}.`
+  );
+}
+
+
+function showCompanyResultsScreen(
+  players,
+  message
+) {
+
   const list =
     document.getElementById(
-      "companyResults"
+      "companyResultsList"
     );
+
 
   list.innerHTML = "";
 
-  sorted.forEach(
+
+  players.forEach(
     (player, index) => {
 
       const row =
@@ -3282,20 +5118,31 @@ function finishCompanyGame() {
           "div"
         );
 
+
       row.className =
         "result-row";
 
+
       row.innerHTML = `
         <div class="result-place">
-          ${index === 0 ? "🏆" : index + 1}
+          ${
+            index === 0
+              ? "🏆"
+              : index + 1
+          }
         </div>
+
         <div class="result-name">
-          ${escapeHtml(player.name)}
+          ${escapeHtml(
+            player.name
+          )}
         </div>
+
         <div class="result-score">
           ${player.score}
         </div>
       `;
+
 
       list.appendChild(
         row
@@ -3303,24 +5150,92 @@ function finishCompanyGame() {
     }
   );
 
-  document.getElementById(
-    "resultsTitle"
-  ).textContent =
-    "Таблица результатов";
 
-  document.getElementById(
-    "resultsScore"
-  ).textContent =
-    `Победитель: ${sorted[0].name}`;
+  const header =
+    document.querySelector(
+      "#companyResultsScreen .finish-title"
+    );
+
+
+  header.textContent =
+    "Результаты компании";
+
+
+  const subtitle =
+    document.querySelector(
+      "#companyResultsScreen .finish-icon"
+    );
+
+
+  subtitle.textContent =
+    "🏆";
+
+
+  /*
+   * Показываем сообщение после списка
+   * через существующий eyebrow.
+   */
+
+  const eyebrow =
+    document.querySelector(
+      "#companyResultsScreen .eyebrow"
+    );
+
+
+  eyebrow.textContent =
+    message;
+
 
   showScreen(
-    "resultsScreen"
+    "companyResultsScreen"
   );
 }
 
 
 /* =========================================================
-   МИКС-СЮЖЕТ — ВОПРОСЫ
+   ВЫХОД ИЗ КОМПАНИИ
+   ========================================================= */
+
+function exitCompanyToMenu() {
+
+  playSound("select");
+
+  stopDuelTimer();
+
+  sandboxRotation = 0;
+
+
+  const sandbox =
+    document.getElementById(
+      "sandboxRotateShell"
+    );
+
+
+  sandbox.style.transform =
+    "rotate(0deg)";
+
+
+  const duel =
+    document.getElementById(
+      "duelRotateShell"
+    );
+
+
+  duel.classList.remove(
+    "duel-flip"
+  );
+
+
+  currentMode = null;
+
+  answerLocked = false;
+
+  goHome();
+}
+
+
+/* =========================================================
+   MIX STORY
    ========================================================= */
 
 function getStoryQuestions() {
@@ -3339,10 +5254,6 @@ function getStoryQuestions() {
 }
 
 
-/* =========================================================
-   МИКС-СЮЖЕТ — ПРОГРЕСС
-   ========================================================= */
-
 function getStoryProgress() {
 
   const value =
@@ -3352,15 +5263,13 @@ function getStoryProgress() {
       )
     );
 
-  if (
-    !Number.isInteger(value) ||
-    value < 0
-  ) {
-    return 0;
-  }
 
-  return value;
+  return Number.isInteger(value) &&
+    value >= 0
+    ? value
+    : 0;
 }
+
 
 function getStoryScore() {
 
@@ -3371,15 +5280,13 @@ function getStoryScore() {
       )
     );
 
-  if (
-    !Number.isFinite(value) ||
-    value < 0
-  ) {
-    return 0;
-  }
 
-  return value;
+  return Number.isFinite(value) &&
+    value >= 0
+    ? value
+    : 0;
 }
+
 
 function saveStoryProgress(
   index,
@@ -3391,6 +5298,7 @@ function saveStoryProgress(
     String(index)
   );
 
+
   localStorage.setItem(
     STORY_SCORE_KEY,
     String(score)
@@ -3399,7 +5307,7 @@ function saveStoryProgress(
 
 
 /* =========================================================
-   МИКС-СЮЖЕТ — ЖИЗНИ
+   STORY LIVES
    ========================================================= */
 
 function saveStoryLives() {
@@ -3410,7 +5318,8 @@ function saveStoryLives() {
   );
 }
 
-function restoreStoryLivesFromTimestamp() {
+
+function restoreStoryLives() {
 
   if (isPremium) {
 
@@ -3426,6 +5335,7 @@ function restoreStoryLivesFromTimestamp() {
     return;
   }
 
+
   if (
     storyLives >=
     STORY_MAX_LIVES
@@ -3438,12 +5348,14 @@ function restoreStoryLivesFromTimestamp() {
     return;
   }
 
+
   let timestamp =
     Number(
       localStorage.getItem(
         STORY_LIFE_TIMESTAMP_KEY
       )
     );
+
 
   if (!timestamp) {
 
@@ -3456,6 +5368,7 @@ function restoreStoryLivesFromTimestamp() {
     );
   }
 
+
   const elapsed =
     Math.floor(
       (
@@ -3464,11 +5377,13 @@ function restoreStoryLivesFromTimestamp() {
       ) / 1000
     );
 
+
   const recovered =
     Math.floor(
       elapsed /
       STORY_REGEN_SECONDS
     );
+
 
   if (
     recovered <= 0
@@ -3476,11 +5391,13 @@ function restoreStoryLivesFromTimestamp() {
     return;
   }
 
+
   storyLives =
     Math.min(
       STORY_MAX_LIVES,
       storyLives + recovered
     );
+
 
   if (
     storyLives >=
@@ -3493,20 +5410,21 @@ function restoreStoryLivesFromTimestamp() {
 
   } else {
 
-    const newTimestamp =
-      timestamp +
-      recovered *
-      STORY_REGEN_SECONDS *
-      1000;
-
     localStorage.setItem(
       STORY_LIFE_TIMESTAMP_KEY,
-      String(newTimestamp)
+      String(
+        timestamp +
+        recovered *
+        STORY_REGEN_SECONDS *
+        1000
+      )
     );
   }
 
+
   saveStoryLives();
 }
+
 
 function loseStoryLife() {
 
@@ -3514,7 +5432,9 @@ function loseStoryLife() {
     return;
   }
 
-  restoreStoryLivesFromTimestamp();
+
+  restoreStoryLives();
+
 
   storyLives =
     Math.max(
@@ -3522,195 +5442,86 @@ function loseStoryLife() {
       storyLives - 1
     );
 
+
   saveStoryLives();
+
 
   if (
     storyLives <
     STORY_MAX_LIVES
   ) {
 
-    const timestamp =
-      localStorage.getItem(
+    if (
+      !localStorage.getItem(
         STORY_LIFE_TIMESTAMP_KEY
-      );
-
-    if (!timestamp) {
+      )
+    ) {
 
       localStorage.setItem(
         STORY_LIFE_TIMESTAMP_KEY,
-        String(Date.now())
+        String(
+          Date.now()
+        )
       );
     }
   }
 }
 
-function getSecondsUntilNextStoryLife() {
-
-  if (isPremium) {
-    return 0;
-  }
-
-  restoreStoryLivesFromTimestamp();
-
-  if (
-    storyLives >=
-    STORY_MAX_LIVES
-  ) {
-    return 0;
-  }
-
-  const timestamp =
-    Number(
-      localStorage.getItem(
-        STORY_LIFE_TIMESTAMP_KEY
-      )
-    );
-
-  if (!timestamp) {
-    return STORY_REGEN_SECONDS;
-  }
-
-  const elapsed =
-    Math.floor(
-      (
-        Date.now() -
-        timestamp
-      ) / 1000
-    );
-
-  return Math.max(
-    0,
-    STORY_REGEN_SECONDS -
-    (
-      elapsed %
-      STORY_REGEN_SECONDS
-    )
-  );
-}
 
 function updateStoryLivesUI() {
 
-  restoreStoryLivesFromTimestamp();
+  restoreStoryLives();
+
 
   const element =
     document.getElementById(
       "storyLivesText"
     );
 
-  if (isPremium) {
 
-    element.textContent = "∞";
-
-    return;
-  }
-
-  element.innerHTML = Array.from({ length: storyLives }, () =>
-    '<img src="heart.png" class="heart-icon" alt="Life">'
-  ).join("") + Array.from({ length: Math.max(0, STORY_MAX_LIVES - storyLives) }, () =>
-    '<img src="heart.png" class="heart-icon" alt="Life" style="opacity:0.22; filter:grayscale(1);">'
-  ).join("");
+  element.textContent =
+    isPremium
+      ? "∞"
+      : (
+        "❤️".repeat(
+          storyLives
+        ) +
+        "🖤".repeat(
+          STORY_MAX_LIVES -
+          storyLives
+        )
+      );
 }
 
 
 /* =========================================================
-   МИКС-СЮЖЕТ — БЛОКИРОВКА
-   ========================================================= */
-
-let storyLockInterval = null;
-
-function isStoryLocked() {
-  if (isPremium) {
-    return false;
-  }
-
-  restoreStoryLivesFromTimestamp();
-
-  return storyLives <= 0;
-}
-
-function startStoryBlockedScreen() {
-
-  showScreen(
-    "storyBlockedScreen"
-  );
-
-  updateStoryBlockedTimer();
-
-  clearInterval(
-    storyLockInterval
-  );
-
-  storyLockInterval =
-    setInterval(
-      updateStoryBlockedTimer,
-      1000
-    );
-}
-
-function updateStoryBlockedTimer() {
-
-  restoreStoryLivesFromTimestamp();
-
-  if (
-    isPremium ||
-    storyLives > 0
-  ) {
-
-    clearInterval(
-      storyLockInterval
-    );
-
-    updateHomeUI();
-
-    startStoryMode();
-
-    return;
-  }
-
-  const seconds =
-    getSecondsUntilNextStoryLife();
-
-  const minutes =
-    Math.floor(
-      seconds / 60
-    );
-
-  const remainder =
-    seconds % 60;
-
-  document.getElementById(
-    "storyBlockedTimer"
-  ).textContent =
-    `${String(minutes).padStart(2, "0")}:` +
-    `${String(remainder).padStart(2, "0")}`;
-}
-
-
-/* =========================================================
-   ЗАПУСК МИКС-СЮЖЕТА
+   STORY
    ========================================================= */
 
 function startStoryMode() {
 
   playSound("select");
 
-  restoreStoryLivesFromTimestamp();
+  restoreStoryLives();
+
 
   if (
     !isPremium &&
     storyLives <= 0
   ) {
 
-    startStoryBlockedScreen();
+    showStoryBlocked();
 
     return;
   }
 
-  const allStoryQuestions =
+
+  const storyQuestions =
     getStoryQuestions();
 
+
   if (
-    !allStoryQuestions.length
+    !storyQuestions.length
   ) {
 
     alert(
@@ -3720,12 +5531,14 @@ function startStoryMode() {
     return;
   }
 
+
   const progress =
     getStoryProgress();
 
+
   if (
     progress >=
-    allStoryQuestions.length
+    storyQuestions.length
   ) {
 
     document.getElementById(
@@ -3740,35 +5553,38 @@ function startStoryMode() {
     return;
   }
 
+
   currentMode =
     "story";
 
+
   currentQuestions =
-    allStoryQuestions;
+    storyQuestions;
+
 
   currentQuestionIndex =
     progress;
 
+
   currentScore =
     getStoryScore();
+
 
   showScreen(
     "storyGameScreen"
   );
 
+
   showStoryQuestion();
 }
 
-
-/* =========================================================
-   МИКС-СЮЖЕТ — ПОКАЗ ВОПРОСА
-   ========================================================= */
 
 function showStoryQuestion() {
 
   answerLocked = false;
 
   updateStoryLivesUI();
+
 
   const question =
     prepareQuestion(
@@ -3777,9 +5593,12 @@ function showStoryQuestion() {
       ]
     );
 
+
   currentQuestions[
     currentQuestionIndex
-  ] = question;
+  ] =
+    question;
+
 
   document.getElementById(
     "storyProgressText"
@@ -3790,10 +5609,12 @@ function showStoryQuestion() {
       currentQuestions.length
     }`;
 
+
   document.getElementById(
     "storyScoreText"
   ).textContent =
     `${currentScore}`;
+
 
   document.getElementById(
     "storyQuestionCategory"
@@ -3802,10 +5623,12 @@ function showStoryQuestion() {
       question.category
     );
 
+
   document.getElementById(
     "storyQuestionText"
   ).textContent =
     question.question;
+
 
   updateProgressBar(
     "storyProgressBar",
@@ -3813,12 +5636,15 @@ function showStoryQuestion() {
     currentQuestions.length
   );
 
+
   const answers =
     document.getElementById(
       "storyAnswers"
     );
 
+
   answers.innerHTML = "";
+
 
   question.options.forEach(
     option => {
@@ -3828,18 +5654,24 @@ function showStoryQuestion() {
           "button"
         );
 
+
       button.className =
         "answer";
+
 
       button.textContent =
         option.text;
 
-      button.onclick = () => {
-        checkStoryAnswer(
-          option.isCorrect,
-          button
-        );
-      };
+
+      button.onclick =
+        () => {
+
+          checkStoryAnswer(
+            option.isCorrect,
+            button
+          );
+        };
+
 
       answers.appendChild(
         button
@@ -3848,14 +5680,19 @@ function showStoryQuestion() {
   );
 }
 
+
 function checkStoryAnswer(
   isCorrect,
   selectedButton
 ) {
 
-  if (answerLocked) return;
+  if (answerLocked) {
+    return;
+  }
+
 
   answerLocked = true;
+
 
   const buttons =
     [
@@ -3864,16 +5701,19 @@ function checkStoryAnswer(
       )
     ];
 
+
   buttons.forEach(
     button => {
       button.disabled = true;
     }
   );
 
+
   const question =
     currentQuestions[
       currentQuestionIndex
     ];
+
 
   if (isCorrect) {
 
@@ -3891,11 +5731,13 @@ function checkStoryAnswer(
       "wrong"
     );
 
+
     const correctOption =
       question.options.find(
         option =>
           option.isCorrect
       );
+
 
     const correctButton =
       buttons.find(
@@ -3904,45 +5746,33 @@ function checkStoryAnswer(
           correctOption.text
       );
 
+
     if (correctButton) {
       correctButton.classList.add(
         "correct"
       );
     }
 
+
     playSound("error");
 
-    /*
-     * Premium никогда не теряет жизни.
-     */
 
     if (!isPremium) {
-
       loseStoryLife();
-
       updateStoryLivesUI();
     }
   }
 
-  document.getElementById(
-    "storyScoreText"
-  ).textContent =
-    `${currentScore}`;
-
-
-  /*
-   * Сохраняем следующий индекс СРАЗУ.
-   * Поэтому кнопка "Назад в меню" может быть
-   * нажата в любой момент, и прогресс уже сохранён.
-   */
 
   const nextIndex =
     currentQuestionIndex + 1;
+
 
   saveStoryProgress(
     nextIndex,
     currentScore
   );
+
 
   setTimeout(
     () => {
@@ -3952,23 +5782,26 @@ function checkStoryAnswer(
         storyLives <= 0
       ) {
 
-        startStoryBlockedScreen();
+        showStoryBlocked();
 
         return;
       }
+
 
       if (
         nextIndex >=
         currentQuestions.length
       ) {
 
-        showStoryComplete();
+        finishStory();
 
         return;
       }
 
+
       currentQuestionIndex =
         nextIndex;
+
 
       showStoryQuestion();
 
@@ -3978,18 +5811,7 @@ function checkStoryAnswer(
 }
 
 
-/* =========================================================
-   НАЗАД ИЗ МИКС-СЮЖЕТА
-   ========================================================= */
-
 function leaveStoryToMenu() {
-
-  /*
-   * Сохраняем текущую позицию.
-   * В текущей архитектуре прогресс уже сохраняется
-   * после каждого ответа, но дополнительная запись
-   * нужна как страховка.
-   */
 
   saveStoryProgress(
     currentQuestionIndex,
@@ -4004,89 +5826,182 @@ function leaveStoryToMenu() {
 }
 
 
-/* =========================================================
-   ЗАВЕРШЕНИЕ МИКС-СЮЖЕТА
-   ========================================================= */
-
-function showStoryComplete() {
+function finishStory() {
 
   saveStoryProgress(
     currentQuestions.length,
     currentScore
   );
 
+
   localStorage.setItem(
     STORY_SCORE_KEY,
     String(currentScore)
   );
 
+
   updateBestScore(
     currentScore
   );
+
 
   document.getElementById(
     "storyCompleteScore"
   ).textContent =
     `${currentScore} очков`;
 
+
   showScreen(
     "storyCompleteScreen"
   );
-
-  updateHomeUI();
 }
+
 
 function resetStoryProgress() {
 
   playSound("select");
 
+
   localStorage.removeItem(
     STORY_PROGRESS_KEY
   );
+
 
   localStorage.removeItem(
     STORY_SCORE_KEY
   );
 
+
   storyLives =
     STORY_MAX_LIVES;
 
+
   saveStoryLives();
+
 
   localStorage.removeItem(
     STORY_LIFE_TIMESTAMP_KEY
   );
 
-  updateHomeUI();
 
   startStoryMode();
 }
 
 
 /* =========================================================
-   ПРОГРЕСС-БАР
+   STORY BLOCK
    ========================================================= */
 
-function updateProgressBar(
-  elementId,
-  current,
-  total
-) {
+let storyBlockInterval = null;
 
-  const element =
-    document.getElementById(
-      elementId
+
+function showStoryBlocked() {
+
+  showScreen(
+    "storyBlockedScreen"
+  );
+
+
+  updateStoryBlockedTimer();
+
+
+  clearInterval(
+    storyBlockInterval
+  );
+
+
+  storyBlockInterval =
+    setInterval(
+      updateStoryBlockedTimer,
+      1000
+    );
+}
+
+
+function updateStoryBlockedTimer() {
+
+  restoreStoryLives();
+
+
+  if (
+    isPremium ||
+    storyLives > 0
+  ) {
+
+    clearInterval(
+      storyBlockInterval
     );
 
-  if (!element) return;
+    startStoryMode();
 
-  const percent =
-    total > 0
-      ? (current / total) * 100
-      : 0;
+    return;
+  }
 
-  element.style.width =
-    `${Math.min(100, percent)}%`;
+
+  const timestamp =
+    Number(
+      localStorage.getItem(
+        STORY_LIFE_TIMESTAMP_KEY
+      )
+    );
+
+
+  let remaining =
+    STORY_REGEN_SECONDS;
+
+
+  if (timestamp) {
+
+    const elapsed =
+      Math.floor(
+        (
+          Date.now() -
+          timestamp
+        ) / 1000
+      );
+
+
+    remaining =
+      Math.max(
+        0,
+        STORY_REGEN_SECONDS -
+        (
+          elapsed %
+          STORY_REGEN_SECONDS
+        )
+      );
+  }
+
+
+  const minutes =
+    Math.floor(
+      remaining / 60
+    );
+
+
+  const seconds =
+    remaining % 60;
+
+
+  document.getElementById(
+    "storyBlockedTimer"
+  ).textContent =
+    `${String(minutes).padStart(2, "0")}:` +
+    `${String(seconds).padStart(2, "0")}`;
+}
+
+
+/* =========================================================
+   COMPANY / GAME EXIT
+   ========================================================= */
+
+function exitToMenuFromGame() {
+
+  playSound("select");
+
+  stopSoloTimer();
+
+  goHome();
 }
 
 
@@ -4098,15 +6013,18 @@ function openPremium() {
 
   playSound("select");
 
+
   const status =
     document.getElementById(
       "premiumStatus"
     );
 
+
   const button =
     document.getElementById(
       "premiumActivateBtn"
     );
+
 
   if (isPremium) {
 
@@ -4116,7 +6034,8 @@ function openPremium() {
     button.textContent =
       "Premium активирован";
 
-    button.disabled = true;
+    button.disabled =
+      true;
 
   } else {
 
@@ -4126,8 +6045,10 @@ function openPremium() {
     button.textContent =
       "Активировать Premium";
 
-    button.disabled = false;
+    button.disabled =
+      false;
   }
+
 
   document.getElementById(
     "premiumModal"
@@ -4136,42 +6057,48 @@ function openPremium() {
   );
 }
 
+
 function activatePremium() {
 
-  isPremium = true;
+  isPremium =
+    true;
+
 
   localStorage.setItem(
     "isPremium",
     "true"
   );
 
+
   storyLives =
     STORY_MAX_LIVES;
 
+
   saveStoryLives();
+
 
   localStorage.removeItem(
     STORY_LIFE_TIMESTAMP_KEY
   );
 
+
   /*
-   * Требование: после активации
-   * приложение перезагружается.
+   * Демонстрация активации.
    */
 
   location.reload();
 }
 
+
 function openPremiumRequired(
   message
 ) {
-
-  playSound("select");
 
   document.getElementById(
     "premiumRequiredText"
   ).textContent =
     message;
+
 
   document.getElementById(
     "premiumRequiredModal"
@@ -4179,6 +6106,7 @@ function openPremiumRequired(
     "active"
   );
 }
+
 
 function openPremiumFromRequired() {
 
@@ -4191,12 +6119,13 @@ function openPremiumFromRequired() {
 
 
 /* =========================================================
-   НАСТРОЙКИ
+   SETTINGS
    ========================================================= */
 
 function openSettings() {
 
   playSound("select");
+
 
   document.getElementById(
     "soundToggle"
@@ -4204,6 +6133,7 @@ function openSettings() {
     "on",
     soundEnabled
   );
+
 
   document.getElementById(
     "settingsModal"
@@ -4212,15 +6142,18 @@ function openSettings() {
   );
 }
 
+
 function toggleSound() {
 
   soundEnabled =
     !soundEnabled;
 
+
   localStorage.setItem(
     "soundEnabled",
     String(soundEnabled)
   );
+
 
   document.getElementById(
     "soundToggle"
@@ -4229,14 +6162,17 @@ function toggleSound() {
     soundEnabled
   );
 
+
   if (soundEnabled) {
     playSound("select");
   }
 }
 
+
 function openAbout() {
 
   playSound("select");
+
 
   document.getElementById(
     "aboutModal"
@@ -4251,18 +6187,30 @@ function openAbout() {
    ========================================================= */
 
 const fakeLeaderboard = [
-  { name: "Али", score: 250 },
-  { name: "Амина", score: 210 },
-  { name: "Умар", score: 180 },
-  { name: "Сафия", score: 165 },
-  { name: "Зайд", score: 140 }
+  {
+    name: "Али",
+    score: 250
+  },
+  {
+    name: "Амина",
+    score: 210
+  },
+  {
+    name: "Умар",
+    score: 180
+  },
+  {
+    name: "Сафия",
+    score: 165
+  },
+  {
+    name: "Зайд",
+    score: 140
+  }
 ];
 
-async function fetchGlobalLeaderboard() {
 
-  /*
-   * Здесь позже можно подключить Firebase.
-   */
+async function fetchGlobalLeaderboard() {
 
   return [...fakeLeaderboard]
     .sort(
@@ -4271,14 +6219,11 @@ async function fetchGlobalLeaderboard() {
     );
 }
 
+
 async function uploadScore(
   name,
   score
 ) {
-
-  /*
-   * Заглушка для Firebase.
-   */
 
   console.log(
     "uploadScore:",
@@ -4289,31 +6234,39 @@ async function uploadScore(
   return true;
 }
 
+
 async function openLeaderboard() {
 
   playSound("select");
 
-  const modal =
-    document.getElementById(
-      "leaderboardModal"
-    );
 
   const list =
     document.getElementById(
       "leaderboardList"
     );
 
+
+  const modal =
+    document.getElementById(
+      "leaderboardModal"
+    );
+
+
   modal.classList.add(
     "active"
   );
 
+
   list.innerHTML =
     "<div style='color:var(--muted)'>Загрузка...</div>";
+
 
   const data =
     await fetchGlobalLeaderboard();
 
+
   list.innerHTML = "";
+
 
   data.forEach(
     (player, index) => {
@@ -4323,8 +6276,10 @@ async function openLeaderboard() {
           "div"
         );
 
+
       row.className =
         "leader-row";
+
 
       row.innerHTML = `
         <span class="leader-rank">
@@ -4340,13 +6295,16 @@ async function openLeaderboard() {
         </span>
 
         <span class="leader-name">
-          ${escapeHtml(player.name)}
+          ${escapeHtml(
+            player.name
+          )}
         </span>
 
         <strong class="leader-score">
           ${player.score}
         </strong>
       `;
+
 
       list.appendChild(
         row
@@ -4363,14 +6321,19 @@ async function openLeaderboard() {
 function closeModal(id) {
 
   const modal =
-    document.getElementById(id);
+    document.getElementById(
+      id
+    );
+
 
   if (modal) {
+
     modal.classList.remove(
       "active"
     );
   }
 }
+
 
 function closeBackdrop(
   event,
@@ -4380,39 +6343,9 @@ function closeBackdrop(
   if (
     event.target.id === id
   ) {
+
     closeModal(id);
   }
-}
-
-
-/* =========================================================
-   ВЫХОД ИЗ ИГРЫ
-   ========================================================= */
-
-function exitToMenuFromGame() {
-
-  playSound("select");
-
-  if (
-    currentMode === "single"
-  ) {
-
-    stopSoloTimer();
-    goHome();
-
-    return;
-  }
-
-  if (
-    currentMode === "company"
-  ) {
-
-    goHome();
-
-    return;
-  }
-
-  leaveStoryToMenu();
 }
 
 
@@ -4423,20 +6356,25 @@ function exitToMenuFromGame() {
 function init() {
 
   if (
-    typeof questions === "undefined" ||
-    !Array.isArray(questions)
+    typeof questions ===
+      "undefined" ||
+    !Array.isArray(
+      questions
+    )
   ) {
 
     console.error(
-      "questions.js не подключён или не содержит " +
-      "глобальный массив questions."
+      "questions.js не подключён " +
+      "или не содержит глобальный массив questions."
     );
 
   }
 
-  restoreStoryLivesFromTimestamp();
+
+  restoreStoryLives();
 
   updateHomeUI();
+
 
   document.getElementById(
     "soundToggle"
@@ -4445,17 +6383,38 @@ function init() {
     soundEnabled
   );
 
+  const loadingScreen =
+    document.getElementById("loadingScreen");
+
+  const loadingSlider =
+    document.getElementById("loadingSlider");
+
+  const loadingStatus =
+    document.getElementById("loadingStatus");
+
+  loadingSlider.value = "70";
+  loadingStatus.textContent = "Подготавливаем игру...";
+
+  requestAnimationFrame(() => {
+    loadingSlider.value = "100";
+    loadingStatus.textContent = "Готово";
+
+    setTimeout(() => {
+      loadingScreen.classList.add("is-hidden");
+      setTimeout(() => loadingScreen.remove(), 300);
+    }, 220);
+  });
+
 
   /*
-   * Обновляем состояние жизней в реальном времени.
-   * Само восстановление считается по timestamp,
-   * поэтому закрытие страницы не ломает систему.
+   * Жизни восстанавливаются по timestamp,
+   * поэтому этот интервал нужен только для обновления UI.
    */
 
   setInterval(
     () => {
 
-      restoreStoryLivesFromTimestamp();
+      restoreStoryLives();
 
       updateHomeUI();
 
@@ -4463,6 +6422,7 @@ function init() {
     1000
   );
 }
+
 
 init();
 </script>
