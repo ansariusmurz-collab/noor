@@ -734,6 +734,18 @@
       margin-bottom: 9px;
     }
 
+    #companySandboxGameScreen .sandbox-side-question {
+      margin-top: 100px !important;
+    }
+
+    #companySandboxGameScreen #sandboxAnswers {
+      grid-template-columns: 1fr;
+    }
+
+    #companySandboxGameScreen.sandbox-side-turn #sandboxAnswers {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
     .question-category {
       margin: 0 0 6px;
       color: var(--gold);
@@ -1024,24 +1036,6 @@
 
       .answers {
         grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    @media (orientation: landscape) {
-      #companySandboxGameScreen .question-card {
-        flex: 1 1 auto;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
-
-      #companySandboxGameScreen .question-text {
-        font-size: clamp(24px, 4vw, 34px);
-      }
-
-      #companySandboxGameScreen #sandboxAnswers {
-        flex: 0 0 auto;
-        grid-template-columns: repeat(2, 1fr);
       }
     }
 
@@ -1718,7 +1712,8 @@
             </div>
           </div>
 
-          <article class="question-card">
+          <article id="sandboxQuestionCard"
+                   class="question-card">
 
             <p id="sandboxPlayerPrompt"
                class="question-for-player">
@@ -2515,6 +2510,7 @@ function prepareQuestion(question) {
           index === question.correct
       })
     );
+    
 
   const shuffledOptions =
     shuffleArray(
@@ -4125,6 +4121,18 @@ function beginCompanyTurn() {
         sandboxRotation
       }deg)`;
 
+    document.getElementById(
+      "sandboxQuestionCard"
+    ).classList.remove(
+      "sandbox-side-question"
+    );
+
+    document.getElementById(
+      "companySandboxGameScreen"
+    ).classList.remove(
+      "sandbox-side-turn"
+    );
+
     showScreen(
       "companySandboxGameScreen"
     );
@@ -4526,6 +4534,27 @@ function rotateSandboxToNextPlayer(
     `rotate(${
       sandboxRotation
     }deg)`;
+
+
+    const normalizedRotation =
+      ((sandboxRotation % 360) + 360) % 360;
+
+
+    document.getElementById(
+      "sandboxQuestionCard"
+    ).classList.toggle(
+      "sandbox-side-question",
+      normalizedRotation === 90 ||
+      normalizedRotation === 270
+    );
+
+    document.getElementById(
+      "companySandboxGameScreen"
+    ).classList.toggle(
+      "sandbox-side-turn",
+      normalizedRotation === 90 ||
+      normalizedRotation === 270
+    );
 
 
   currentScore =
@@ -5231,6 +5260,18 @@ function exitCompanyToMenu() {
 
   sandbox.style.transform =
     "rotate(0deg)";
+
+  document.getElementById(
+    "sandboxQuestionCard"
+  ).classList.remove(
+    "sandbox-side-question"
+  );
+
+  document.getElementById(
+    "companySandboxGameScreen"
+  ).classList.remove(
+    "sandbox-side-turn"
+  );
 
 
   const duel =
