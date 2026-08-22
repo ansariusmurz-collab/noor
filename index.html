@@ -1027,6 +1027,24 @@
       }
     }
 
+    @media (orientation: landscape) {
+      #companySandboxGameScreen .question-card {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      #companySandboxGameScreen .question-text {
+        font-size: clamp(24px, 4vw, 34px);
+      }
+
+      #companySandboxGameScreen #sandboxAnswers {
+        flex: 0 0 auto;
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     @keyframes fadeIn {
       from {
         opacity: 0;
