@@ -312,9 +312,36 @@
       margin: 0 auto;
     }
 
+    .ad-banner {
+  width: 100%;
+  margin-top: 12px;
+  padding: 9px 12px;
+  text-align: center;
+  border: 1px solid rgba(123, 44, 191, 0.6); /* Светло-фиолетовая рамка */
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1d0b3a, #2e0854); /* Красивый фиолетово-синий градиент */
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+    .ad-banner-title {
+      display: block;
+      color: var(--gold-light);
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .ad-banner-rules {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.3;
+    }
+
     .main-modes {
       display: grid;
-      gap: 9px;
+      gap: 20px;
     }
 
     .main-mode-btn {
@@ -873,6 +900,12 @@
       font-weight: 900;
     }
 
+    .result-time {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
     .countdown {
       margin: 12px 0 18px;
       color: var(--gold-light);
@@ -1183,6 +1216,17 @@
 
       </div>
 
+     <div class="ad-banner" 
+     role="button" 
+     onclick="window.open('https://t.me/Muslim_and_IT/293')" 
+     style="cursor: pointer;">
+  <span class="ad-banner-title">
+    Здесь может быть ваша реклама
+  </span>
+  <span class="ad-banner-rules">
+    Без музыки • Без изображений живых существ • Исламская тематика
+  </span>
+</div>
     </div>
   </section>
 
@@ -1480,6 +1524,16 @@
 
         </div>
 
+      </div>
+
+      <div class="ad-banner"
+           role="note">
+        <span class="ad-banner-title">
+          Здесь может быть ваша реклама
+        </span>
+        <span class="ad-banner-rules">
+          Без музыки • Без изображений живых существ • Исламская тематика
+        </span>
       </div>
 
       <div class="setup-bottom">
@@ -2101,28 +2155,39 @@
     <div class="modal-card">
 
       <p class="eyebrow">
-        О проекте
-      </p>
+  О проекте
+</p>
 
-      <h2 class="modal-title">
-        НУР
-      </h2>
+<h2 class="modal-title">
+  НУР
+</h2>
 
-      <p class="modal-text">
-        Образовательная исламская викторина.
-        Вопросы загружаются из внешнего файла
-        <strong>questions.js</strong>.
-      </p>
+<p class="modal-text">
+  «НУР» — это увлекательная исламская викторина, созданная для интересного и полезного досуга.
+</p>
 
-      <p class="modal-text">
-        Религиозную информацию рекомендуется
-        сверять с достоверными источниками.
-      </p>
+<p class="modal-text">
+  <strong>✨ Наша главная особенность и ценности:</strong><br><br>
+  • <strong>Полный чистый халяль-контент:</strong> В приложении строго нет музыки, изображений живых существ и сторонней неэтичной рекламы. Мы тщательно следим за чистой атмосферой.<br><br>
+  • <strong>Безопасная реклама:</strong> У нас нет автоматических сторонних баннеров. Вся возможная реклама подбирается вручную, строго соблюдает исламские нормы и не отвлекает вас во время самой игры.<br><br>
+  • <strong>Игровой формат:</strong> Проверяйте себя в вопросах по истории и различным темам, соревнуйтесь с друзьями в режиме «Дуэль» и улучшайте свои результаты!<br><br>
+  • <strong>Чистый и удобный дизайн:</strong> Приложение создано с заботой о пользователях — приятный интерфейс, отсутствие раздражающих элементов и полная фокусировка на игре.
+</p>
 
-      <button class="secondary-btn"
-              onclick="closeModal('aboutModal')">
-        Закрыть
-      </button>
+<p class="modal-text">
+  <strong>⚠️ Важное напоминание:</strong><br>
+  Помните, что викторина — это лишь развлечение в свободное время. Ни в коем случае не откладывайте и не пропускайте обязательные дела, особенно Намаз, учебу и помощь родителям ради игры!
+</p>
+
+<p class="modal-text">
+  Религиозную информацию рекомендуется сверять с достоверными источниками.<br><br>
+  Пусть время, проведенное в приложении, приносит вам радость и баракат!
+</p>
+
+<button class="secondary-btn"
+        onclick="closeModal('aboutModal')">
+  Закрыть
+</button>
 
     </div>
   </div>
@@ -4663,9 +4728,7 @@ function startDuelTimer() {
           stopDuelTimer();
 
 
-          finishDuel(
-            duelActivePlayer
-          );
+          finishDuel();
         }
 
       },
@@ -5051,37 +5114,54 @@ function flipDuelScreen() {
 }
 
 
-function finishDuel(
-  loserIndex
-) {
+function finishDuel() {
 
   stopDuelTimer();
 
 
-  const winnerIndex =
-    loserIndex === 0
-      ? 1
-      : 0;
+  const players =
+    [...companyPlayers].sort(
+      compareDuelPlayers
+    );
 
 
-  const winner =
-    companyPlayers[
-      winnerIndex
-    ];
+  const isTie =
+    players[0].score === players[1].score &&
+    duelTimes[companyPlayers.indexOf(players[0])] ===
+      duelTimes[companyPlayers.indexOf(players[1])];
 
 
-  const loser =
-    companyPlayers[
-      loserIndex
-    ];
+  const message =
+    isTie
+      ? "Ничья по очкам и времени!"
+      : `Победитель — ${players[0].name}.`;
 
 
   showCompanyResultsScreen(
-    [
-      winner,
-      loser
-    ],
-    `Время закончилось у ${loser.name}. Победитель — ${winner.name}.`
+    players,
+    message,
+    true
+  );
+}
+
+
+function compareDuelPlayers(
+  firstPlayer,
+  secondPlayer
+) {
+
+  if (
+    firstPlayer.score !==
+    secondPlayer.score
+  ) {
+
+    return secondPlayer.score - firstPlayer.score;
+  }
+
+
+  return (
+    duelTimes[companyPlayers.indexOf(secondPlayer)] -
+    duelTimes[companyPlayers.indexOf(firstPlayer)]
   );
 }
 
@@ -5093,8 +5173,7 @@ function finishDuelByQuestions() {
 
   const players =
     [...companyPlayers].sort(
-      (a, b) =>
-        b.score - a.score
+      compareDuelPlayers
     );
 
 
@@ -5102,12 +5181,13 @@ function finishDuelByQuestions() {
 
 
   if (
-    players[0].score ===
-    players[1].score
+    players[0].score === players[1].score &&
+    duelTimes[companyPlayers.indexOf(players[0])] ===
+      duelTimes[companyPlayers.indexOf(players[1])]
   ) {
 
     message =
-      "По очкам ничья!";
+      "Ничья по очкам и времени!";
 
   } else {
 
@@ -5118,7 +5198,8 @@ function finishDuelByQuestions() {
 
   showCompanyResultsScreen(
     players,
-    message
+    message,
+    true
   );
 }
 
@@ -5145,7 +5226,8 @@ function finishNewCompanyGame() {
 
 function showCompanyResultsScreen(
   players,
-  message
+  message,
+  showDuelTimes = false
 ) {
 
   const list =
@@ -5188,6 +5270,16 @@ function showCompanyResultsScreen(
         <div class="result-score">
           ${player.score}
         </div>
+
+        ${
+          showDuelTimes
+            ? `<div class="result-time">
+                 Время: ${formatClock(
+                   duelTimes[companyPlayers.indexOf(player)]
+                 )}
+               </div>`
+            : ""
+        }
       `;
 
 
