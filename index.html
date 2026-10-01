@@ -2488,6 +2488,25 @@ function getStoredNumber(
 }
 
 
+function updateBestScore(score) {
+
+  const bestScore =
+    getStoredNumber(
+      "bestScore",
+      0
+    );
+
+
+  if (score > bestScore) {
+
+    localStorage.setItem(
+      "bestScore",
+      String(score)
+    );
+  }
+}
+
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -6163,49 +6182,7 @@ function exitToMenuFromGame() {
 function openPremium() {
 
   playSound("select");
-
-
-  const status =
-    document.getElementById(
-      "premiumStatus"
-    );
-
-
-  const button =
-    document.getElementById(
-      "premiumActivateBtn"
-    );
-
-
-  if (isPremium) {
-
-    status.textContent =
-      "✓ Premium уже активирован.";
-
-    button.textContent =
-      "Premium активирован";
-
-    button.disabled =
-      true;
-
-  } else {
-
-    status.textContent =
-      "Откройте дополнительные возможности.";
-
-    button.textContent =
-      "Активировать Premium";
-
-    button.disabled =
-      false;
-  }
-
-
-  document.getElementById(
-    "premiumModal"
-  ).classList.add(
-    "active"
-  );
+  alert("В процессе разработки");
 }
 
 
