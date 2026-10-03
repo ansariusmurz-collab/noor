@@ -1,0 +1,19 @@
+/* =====================================================
+   CSS VARIABLES & THEME
+   ===================================================== */
+
+:root {
+  --bg: #072E20;
+  --card: #0B4430;
+  --card-2: #10583D;
+  --gold: #D4AF37;
+  --gold-light: #F0D66B;
+  --cream: #F5F5DC;
+  --white: #FFFFFF;
+  --muted: rgba(245, 245, 220, 0.66);
+  --green: #2ECC71;
+  --red: #E74C3C;
+  --shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+  --radius: 18px;
+  --transition: 180ms ease;
+}
